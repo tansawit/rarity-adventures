@@ -21,7 +21,7 @@ function convertBigNumber(number) {
 }
 
 function toClassName(id) {
-  if (id == 1) {
+  if (id === 1) {
     return "Barbarian";
   } else if (id === 2) {
     return "Bard";
@@ -64,17 +64,17 @@ async function readRarityData(id, signer) {
 
 async function embarkAdventure(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  const tx = await rarityContract.adventure(id);
+  await rarityContract.adventure(id);
 }
 
 async function summon(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  const tx = await rarityContract.summon(id);
+  await rarityContract.summon(id);
 }
 
 async function levelUp(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  const tx = await rarityContract.level_up(id);
+  await rarityContract.level_up(id);
 }
 
 async function getGoldBalance(id, signer) {
@@ -103,7 +103,7 @@ async function claimGold(id, signer) {
     abis.rarityGold,
     signer
   );
-  const tx = await rarityGoldContract.claim(id);
+  await rarityGoldContract.claim(id);
 }
 
 async function characterCreated(id, signer) {
@@ -114,16 +114,6 @@ async function characterCreated(id, signer) {
   );
   const data = await rarityAttributesContract.character_created(id);
   return data;
-}
-
-async function getAbilityScores(id, signer) {
-  const rarityAttributesContract = new Contract(
-    addresses.rarityAttributes,
-    abis.rarityAttributes,
-    signer
-  );
-  const data = await rarityAttributesContract.ability_scores(id);
-  console.log(data);
 }
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
@@ -229,7 +219,7 @@ function App() {
                   Submit{" "}
                 </button>
               </div>
-              {id == 0 ? (
+              {id === 0 ? (
                 <p>please enter summoner ID first</p>
               ) : (
                 <div>
@@ -265,7 +255,7 @@ function App() {
                   </div>
                 </div>
               )}
-              {parseInt(xpRequired) == 0 ? (
+              {parseInt(xpRequired) === 0 ? (
                 <button onClick={() => levelUp(id, signer)}>Level Up</button>
               ) : (
                 <div />

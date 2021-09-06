@@ -1,56 +1,29 @@
 import React from "react";
 
 export default () => {
+  const classes = [
+    { id: 1, name: "Barbarian" },
+    { id: 2, name: "Bard" },
+    { id: 3, name: "Cleric" },
+    { id: 4, name: "Druid" },
+    { id: 5, name: "Fighter" },
+    { id: 6, name: "Monk" },
+    { id: 7, name: "Paladin" },
+    { id: 8, name: "Ranger" },
+    { id: 9, name: "Rogue" },
+    { id: 10, name: "Sorcerer" },
+    { id: 11, name: "Wizard" },
+  ];
+  const tableRows = classes.map(row=>{
+    return <tr><td>{row.id}</td><td>{row.name}</td></tr>
+  })
   return (
     <table>
       <tr>
         <th>ID</th>
         <th>Class</th>
       </tr>
-      <tr>
-        <td>1</td>
-        <td>Barbarian</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Bard</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>Cleric</td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>Druid</td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td>Fighter</td>
-      </tr>
-      <tr>
-        <td>6</td>
-        <td>Monk</td>
-      </tr>
-      <tr>
-        <td>7</td>
-        <td>Paladin</td>
-      </tr>
-      <tr>
-        <td>8</td>
-        <td>Ranger</td>
-      </tr>
-      <tr>
-        <td>9</td>
-        <td>Rogue</td>
-      </tr>
-      <tr>
-        <td>10</td>
-        <td>Sorcerer</td>
-      </tr>
-      <tr>
-        <td>11</td>
-        <td>Wizard</td>
-      </tr>
+      {tableRows}
     </table>
   );
 };
