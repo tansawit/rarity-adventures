@@ -34,7 +34,7 @@ export default ({ id, signer }) => {
   const [int, setInt] = useState(0);
   const [wis, setWis] = useState(0);
   const [char, setChar] = useState(0);
-  useEffect(async () => {
+  useEffect(() => {
     getAbilityScores(
       id,
       setStr,
@@ -45,7 +45,23 @@ export default ({ id, signer }) => {
       setChar,
       signer
     );
-  }, []);
+  }, [id, signer]);
+  const attributes = [
+    { name: "Strength", value: str },
+    { name: "Dexterity", value: dex },
+    { name: "Constitution", value: con },
+    { name: "Intelligence", value: int },
+    { name: "Wisdom", value: wis },
+    { name: "Charisma", value: char },
+  ];
+  const attributeRows = attributes.map((attribute) => {
+    return (
+      <tr>
+        <td>{attribute.name}</td>
+        <td>{attribute.value}</td>
+      </tr>
+    );
+  });
   return (
     <div>
       <table>
@@ -53,30 +69,7 @@ export default ({ id, signer }) => {
           <th>Attribute</th>
           <th>Value</th>
         </tr>
-        <tr>
-          <td>Strength</td>
-          <td>{str}</td>
-        </tr>
-        <tr>
-          <td>Dexterity</td>
-          <td>{dex}</td>
-        </tr>
-        <tr>
-          <td>Constitution</td>
-          <td>{con}</td>
-        </tr>
-        <tr>
-          <td>Intelligence</td>
-          <td>{int}</td>
-        </tr>
-        <tr>
-          <td>Wisdom</td>
-          <td>{wis}</td>
-        </tr>
-        <tr>
-          <td>Charisma</td>
-          <td>{char}</td>
-        </tr>
+        {attributeRows}
       </table>
     </div>
   );
