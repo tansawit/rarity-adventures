@@ -10,9 +10,9 @@ import useWeb3Modal from "./hooks/useWeb3Modal";
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
 
-import ClassTable from "./components/ClassTable";
 import CreateCharacter from "./components/CreateCharacter";
 import UpdateAttributes from "./components/UpdateAttributes";
+import Summon from "./components/Summon";
 
 function convertBigNumber(number) {
   return BigNumber(number.toString())
@@ -65,11 +65,6 @@ async function readRarityData(id, signer) {
 async function embarkAdventure(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   await rarityContract.adventure(id);
-}
-
-async function summon(id, signer) {
-  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  await rarityContract.summon(id);
 }
 
 async function levelUp(id, signer) {
@@ -163,66 +158,56 @@ function App() {
         />
       </Header>
       <Body>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ marginRight: "100px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{display:"flex", flexDirection:"row", justifyContent:"center"}}>
+              <div style={{ display: "flex", justifyContent: "center",marginRight:"10px" }}>
+                <label for="summoner">Enter Summoner ID to View Stats: </label>
+                <input
+                  id="summoner"
+                  type="text"
+                  name="text"
+                  style={{ maxHeight: "20px" }}
+                />
+              </div>
+              <button
+                value="Send"
+                style={{
+                  width: "60px",
+                  height: "20px",
+                  color: "black",
+                }}
+                onClick={async () => {
+                  const id = document.getElementById("summoner").value;
+                  setID(id);
+                  const charCreated = await characterCreated(id, signer);
+                  setCreated(charCreated);
+                  const data = await readRarityData(id, signer);
+                  const claimable = await getClaimableGold(id, signer);
+                  const balance = await getGoldBalance(id, signer);
+                  setGoldBalance(balance);
+                  setClaimableGold(claimable);
+                  setCharClass(data["class"]);
+                  setLevel(data["level"]);
+                  setXP(data["xp"]);
+                  setXPRequired(data["xpRequired"]);
+                }}
+              >
+                Submit{" "}
+              </button>
+            </div>
             <div>
-              <div style={{ display: "flex", justifyContent: "left" }}>
-                <label for="example">Enter Class ID to mint: </label>
-                <input id="class" type="text" name="text" />
-              </div>
-              <div>
-                <button
-                  value="Send"
-                  style={{
-                    width: "60px",
-                    height: "20px",
-                    color: "black",
-                  }}
-                  onClick={async () => {
-                    const id = document.getElementById("class").value;
-                    await summon(id, signer);
-                  }}
-                >
-                  Submit{" "}
-                </button>
-              </div>
-              or
-              {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <label for="summoner">Enter Summoner ID to see stats: </label>
-                <input id="summoner" type="text" name="text" />
-              </div>
-              <div>
-                <button
-                  value="Send"
-                  style={{
-                    width: "60px",
-                    height: "20px",
-                    color: "black",
-                  }}
-                  onClick={async () => {
-                    const id = document.getElementById("summoner").value;
-                    setID(id);
-                    const charCreated = await characterCreated(id, signer);
-                    setCreated(charCreated);
-                    const data = await readRarityData(id, signer);
-                    const claimable = await getClaimableGold(id, signer);
-                    const balance = await getGoldBalance(id, signer);
-                    setGoldBalance(balance);
-                    setClaimableGold(claimable);
-                    setCharClass(data["class"]);
-                    setLevel(data["level"]);
-                    setXP(data["xp"]);
-                    setXPRequired(data["xpRequired"]);
-                  }}
-                >
-                  Submit{" "}
-                </button>
-              </div>
               {id === 0 ? (
-                <p>please enter summoner ID first</p>
+                <div/>
               ) : (
-                <div>
+                <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginTop:"10px"}}>
+                  Summoner Stats
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <p>Summoner ID: {id}</p>
                     <p>Class: {charClass}</p>
@@ -246,7 +231,8 @@ function App() {
                       Adventure
                     </button>
                   </div>
-                  <div style={{ marginTop: "20px" }}>
+                  <div style={{ display:"flex", flexDirection:"column", marginTop: "20px",alignItems:"center" }}>
+                    Attributes
                     {created ? (
                       <UpdateAttributes id={id} signer={signer} />
                     ) : (
@@ -262,9 +248,10 @@ function App() {
               )}
             </div>
           </div>
-          <div>
-            Class ID Table
-            <ClassTable />
+          <div style={{ height: "30px" }} />
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+            <p style={{marginBottom:"10px"}}>Summon</p>
+            <Summon signer={signer} />
           </div>
         </div>
       </Body>
