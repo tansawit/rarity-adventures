@@ -41,7 +41,7 @@ export default ({ id, signer}) => {
         if (score <= 14) {
           return Math.max(score - 8,0);
         } else {
-          return (score - 8) ** 2 / 6;
+          return Math.floor((score - 8) ** 2 / 6);
         }
       }
     const sum =
