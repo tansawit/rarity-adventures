@@ -1,34 +1,52 @@
-import React from "react";
+import React from "react"
+import styled from "styled-components"
+import { classes } from "../constants/classes.js"
+import { summon } from "../hooks/utils"
 
-import { Contract } from "@ethersproject/contracts";
-import { addresses, abis } from "@project/contracts";
+const ClassContainer = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  max-width: 1300px;
+  justify-content: center;
+  border: 5px solid #fff;
+  padding: 20px;
+  margin: 40px auto;
+`
 
-async function newSummon(id, signer) {
-  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  await rarityContract.summon(id);
-}
+const ClassBox = styled.div`
+  padding: 10px;
+  margin: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+  &:hover,
+  &:active,
+  &:focus {
+    opacity: 0.8;
+  }
+`
 
 export default ({ signer }) => {
-  const classes = [
-    { id: 1, name: "Barbarian" },
-    { id: 2, name: "Bard" },
-    { id: 3, name: "Cleric" },
-    { id: 4, name: "Druid" },
-    { id: 5, name: "Fighter" },
-    { id: 6, name: "Monk" },
-    { id: 7, name: "Paladin" },
-    { id: 8, name: "Ranger" },
-    { id: 9, name: "Rogue" },
-    { id: 10, name: "Sorcerer" },
-    { id: 11, name: "Wizard" },
-  ];
-
-  const tableRows = classes.map((classDetail) => {
-    return (
-      <button style={{marginLeft:"5px",marginRight:"5px"}} onClick={() => newSummon(classDetail.id, signer)}>
-        {classDetail.name}
-      </button>
-    );
-  });
-  return <div>{tableRows}</div>;
-};
+  return (
+    <>
+      <img src="images/GrandWizard.png" style={{ maxWidth: "250px", margin: "0 auto", display: "block" }} />
+      <h2 style={{ textTransform: "uppercase", textAlign: "center" }}>Mint your class</h2>
+      <ClassContainer>
+        {classes.map(({ id, name }) => {
+          return (
+            <ClassBox
+              key={id}
+              onClick={async () => {
+                await summon(id, signer)
+              }}
+            >
+              <img src={`/images/${name}.png`} style={{ width: "100%", maxWidth: "150px" }} />
+              <h5 style={{ color: "#fff" }}>{name}</h5>
+            </ClassBox>
+          )
+        })}
+      </ClassContainer>
+    </>
+  )
+}
