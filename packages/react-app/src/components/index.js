@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "styled-components"
 
 export const Header = styled.header`
   background-color: #282c34;
@@ -6,25 +6,29 @@ export const Header = styled.header`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   color: white;
-`;
+  & img {
+    width: 100%;
+    display: block;
+    max-width: 100px;
+  }
+`
 
-export const Body = styled.div`
+export const Body = styled.body`
   align-items: center;
-  background-color: #282c34;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-height: calc(100vh - 70px);
-`;
+`
 
 export const Image = styled.img`
   height: 40vmin;
   margin-bottom: 16px;
   pointer-events: none;
-`;
+`
 
 export const Link = styled.a.attrs({
   target: "_blank",
@@ -32,22 +36,21 @@ export const Link = styled.a.attrs({
 })`
   color: #61dafb;
   margin-top: 10px;
-`;
+`
 
 export const Button = styled.button`
-  background-color: white;
-  border: none;
-  border-radius: 8px;
-  color: #282c34;
+  background: #007580;
+  border: 5px solid #d8ebe4;
+  padding: 10px 15px;
+  transition: 0.3s;
   cursor: pointer;
-  font-size: 16px;
-  text-align: center;
-  text-decoration: none;
-  margin: 0px 20px;
-  padding: 12px 24px;
-
-  ${props => props.hidden && "hidden"} :focus {
-    border: none;
-    outline: none;
+  &:hover,
+  &active,
+  &:focus {
+    opacity: 0.8;
   }
-`;
+  &:disabled {
+    pointer-event: none;
+    opacity: 0.5;
+  }
+`
