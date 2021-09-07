@@ -48,9 +48,9 @@ export default ({ id, signer }) => {
     { name: "Wisdom", id: "wis", setter: setWis },
     { name: "Charisma", id: "char", setter: setChar },
   ];
-  const attributeRows = attributes.map((attribute) => {
+  const attributeRows = attributes.map((attribute, index) => {
     return (
-      <tr>
+      <tr key={index}>
         <td>{attribute.name}</td>
         <td>
           <input
@@ -68,11 +68,13 @@ export default ({ id, signer }) => {
   return (
     <div>
       <table>
-        <tr>
-          <th>Attribute</th>
-          <th>Value</th>
-        </tr>
-        {attributeRows}
+        <tbody>
+          <tr>
+            <th>Attribute</th>
+            <th>Value</th>
+          </tr>
+          {attributeRows}
+        </tbody>
       </table>
       <p>{32 - total}/32 points available</p>
       {total === 32 ? (

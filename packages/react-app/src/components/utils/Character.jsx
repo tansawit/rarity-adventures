@@ -93,7 +93,21 @@ async function getAbilityScores(id, signer) {
   const data = await rarityAttributesContract.ability_scores(id);
   console.log(data);
 }
-
+async function readRarityData(id, signer) {
+  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
+  const summoner = await rarityContract.summoner(id);
+  const xpRequired = await rarityContract.xp_required(summoner[3].toNumber());
+  const data = {
+    class: toClassName(summoner[2].toNumber()),
+    level: summoner[3].toString(),
+    xp: convertBigNumber(summoner[0]),
+    xpRequired: BigNumber(xpRequired.toString())
+      .minus(BigNumber(summoner[0].toString()))
+      .dividedBy(1e18)
+      .toString(),
+  };
+  return data;
+}
 export {
   toClassName,
   embarkAdventure,
@@ -106,4 +120,5 @@ export {
   getAbilityScores,
   convertBigNumber,
   BigNumber,
+  readRarityData,
 };

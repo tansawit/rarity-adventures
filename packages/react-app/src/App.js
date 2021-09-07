@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
+import { ethers } from "ethers";
 
 import { Body, Header } from "./components/index.jsx";
-import useWeb3Modal from "./hooks/useWeb3Modal";
 import GET_TRANSFERS from "./graphql/subgraph";
 
 import { addresses, abis } from "@project/contracts";
@@ -20,34 +20,19 @@ import {
   getAbilityScores,
   convertBigNumber,
   BigNumber,
+  readRarityData,
 } from "./components/utils/Character";
 
 import Summon from "./components/Summon";
 import CreateCharacter from "./components/CreateCharacter.jsx";
 import UpdateAttributes from "./components/UpdateAttributes.jsx";
-
+import Heroes from "./components/Heroes/Heroes";
 import NavBar from "./components/NavBar/NavBar";
-
-async function readRarityData(id, signer) {
-  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-  console.log(rarityContract);
-  const summoner = await rarityContract.summoner(id);
-  const xpRequired = await rarityContract.xp_required(summoner[3].toNumber());
-  const data = {
-    class: toClassName(summoner[2].toNumber()),
-    level: summoner[3].toString(),
-    xp: convertBigNumber(summoner[0]),
-    xpRequired: BigNumber(xpRequired.toString())
-      .minus(BigNumber(summoner[0].toString()))
-      .dividedBy(1e18)
-      .toString(),
-  };
-  return data;
-}
+import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
-  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+  const [accounts, setAccounts] = useState("");
   const [id, setID] = useState(0);
   const [charClass, setCharClass] = useState("");
   const [level, setLevel] = useState("");
@@ -56,28 +41,96 @@ function App() {
   const [goldBalance, setGoldBalance] = useState("");
   const [claimableGold, setClaimableGold] = useState("");
   const [created, setCreated] = useState(false);
-  const [signer, setSigner] = useState({});
-  React.useEffect(() => {
-    if (!loading && !error && data && data.transfers) {
-      const defaultProvider = new Web3Provider(window.ethereum);
-      const signerData = defaultProvider.getSigner();
-      console.log("check", signerData);
-      setSigner(signerData);
+  const [signer, setSigner] = useState("");
+  const [tokenID, setTokenID] = useState([]);
+  const { heroes, setHeroes } = useContext(CharacterContext);
+  // const web3 = new Web3(Web3.givenProvider || "http://localhost:8546");
+  // const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+
+  const callHeroesList = async (event) => {
+    event.preventDefault();
+    const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
+    // const balance = await rarityContract.balanceOf(address);
+    // const converted = ethers.BigNumber.from(balance.toString());
+    // console.log("before", converted.toNumber());
+  };
+
+  const pullHeroesData = async (heroID) => {
+    if (heroID.length) {
+      const temp = [];
+      for (let i = 0; i < heroID.length; i++) {
+        const data = await readRarityData(heroID[i], signer);
+        temp.push({ tokenID: heroID[i], ...data });
+      }
+      console.log("check temp", temp);
+      setHeroes(temp);
     }
+  };
+
+  React.useEffect(() => {
+    // initiate data signer then account address
+    const initiateData = async () => {
+      if (!loading && !error && data && data.transfers) {
+        const defaultProvider = new Web3Provider(window.ethereum);
+        const signerData = defaultProvider.getSigner();
+        const address = await signerData.getAddress();
+        setAccounts(address);
+        setSigner(signerData);
+      }
+    };
+    initiateData();
   }, [loading, error, data]);
 
+  React.useEffect(() => {
+    //fethcing all NFT of the address using etherscan API
+    const fetchHeroes = async () => {
+      try {
+        const response = await fetch(
+          `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${addresses.rarity}&address=${accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
+        );
+        const data = await response.json();
+        console.log("data", data);
+        const temp = [];
+        data.result.forEach((e) => {
+          temp.push(e.tokenID);
+        });
+        //update tokenID for heroes
+        pullHeroesData(temp);
+        setTokenID(temp);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    if (accounts && signer) {
+      fetchHeroes();
+    }
+  }, [accounts, signer]);
+
+  // useEffect(() => {
+  //   if (tokenID.length) {
+  //     const temp = [];
+  //     tokenID.forEach(async (e) => {
+  //       const data = await readRarityData(e, signer);
+  //       console.log("data for", e);
+  //       temp.push({ tokenID: e, ...data });
+  //     });
+  //     console.log("check temp", temp);
+  //     setHeroes(temp);
+  //   }
+  // }, [tokenID]);
   return (
     <div>
       <Header>
-        <NavBar
-          provider={provider}
-          loadWeb3Modal={loadWeb3Modal}
-          logoutOfWeb3Modal={logoutOfWeb3Modal}
-        ></NavBar>
+        <NavBar></NavBar>
       </Header>
       <Body>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ marginRight: "100px" }}>
+        <Heroes signer={signer}></Heroes>
+        {/* <div
+          style={{ display: "flex", justifyContent: "space-between" }}
+          className="main"
+        >
+          {/* manage heroes */}
+        {/* <div style={{ marginRight: "100px" }} className="heroes-section">
             <div>
               <div style={{ display: "flex", justifyContent: "left" }}>
                 <label htmlFor="example">Enter Class ID to mint: </label>
@@ -85,23 +138,16 @@ function App() {
               </div>
               <div>
                 <button
-                  value="Send"
-                  style={{
-                    width: "60px",
-                    height: "20px",
-                    color: "black",
-                  }}
-                  onClick={async () => {
-                    const id = document.getElementById("class").value;
-                    await summon(id, signer);
-                  }}
+                  className="btn btn-info"
+                  type="button"
+                  onClick={callHeroesList}
                 >
-                  Submit{" "}
+                  Check Heroes{" "}
                 </button>
               </div>
               or
               {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
-              <div style={{ display: "flex", justifyContent: "center" }}>
+        {/* <div style={{ display: "flex", justifyContent: "center" }}>
                 <label htmlFor="summoner">
                   Enter Summoner ID to see stats:{" "}
                 </label>
@@ -123,6 +169,7 @@ function App() {
                     const data = await readRarityData(id, signer);
                     const claimable = await getClaimableGold(id, signer);
                     const balance = await getGoldBalance(id, signer);
+                    console.log("add data", data);
                     setGoldBalance(balance);
                     setClaimableGold(claimable);
                     setCharClass(data["class"]);
@@ -131,7 +178,7 @@ function App() {
                     setXPRequired(data["xpRequired"]);
                   }}
                 >
-                  Submit{" "}
+                  Check stat{" "}
                 </button>
               </div>
               {id == 0 ? (
@@ -150,7 +197,7 @@ function App() {
                           Claim
                         </button>
                       ) : (
-                        <div />
+                        ""
                       )}
                     </p>
                     <p>
@@ -177,11 +224,11 @@ function App() {
               )}
             </div>
           </div>
-          <div>
+          <div className="tavern-section">
             Class ID Table
-            <Summon />
-          </div>
-        </div>
+            <Summon signer={signer} />
+          </div> */}
+        {/* </div> */}
       </Body>
     </div>
   );
