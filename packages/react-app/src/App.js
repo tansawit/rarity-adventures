@@ -42,18 +42,6 @@ function App() {
   // const web3 = new Web3(Web3.givenProvider || "http://localhost:8546");
   // const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
 
-  const pullHeroesData = async (heroID) => {
-    if (heroID.length) {
-      const temp = [];
-      for (let i = 0; i < heroID.length; i++) {
-        const data = await readRarityData(heroID[i], signer);
-        temp.push({ tokenID: heroID[i], ...data });
-      }
-      console.log("check temp", temp);
-      setHeroes(temp);
-    }
-  };
-
   React.useEffect(() => {
     // initiate data signer then account address
     const initiateData = async () => {
@@ -82,7 +70,6 @@ function App() {
           temp.push(e.tokenID);
         });
         //update tokenID for heroes
-        pullHeroesData(temp);
         setTokenID(temp);
       } catch (error) {
         console.log("error", error);
@@ -134,6 +121,13 @@ function App() {
               Evan Todd-McCoy
             </a>{" "}
             for Gifs
+          </p>
+          <p className="text-center text-white-50">
+            Tip me here
+            <span className="link-primary">
+              {" "}
+              0xf438A14edD1757411D4a4c9f45b4D1CBdE73EAba
+            </span>
           </p>
         </div>
       </footer>

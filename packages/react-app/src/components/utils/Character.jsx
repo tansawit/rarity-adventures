@@ -33,11 +33,17 @@ function convertBigNumber(number) {
 async function embarkAdventure(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   const tx = await rarityContract.adventure(id);
-  // const confirmed = await tx.wait();
-  // console.log("check tx", tx);
-  return tx;
+  const confirmed = await tx.wait();
+  // console.log("check tx", confirmed);
+  return confirmed;
 }
-
+const pullHeroesData = async (heroID, signer) => {
+  let data = {};
+  if (heroID) {
+    data = await readRarityData(heroID, signer);
+  }
+  return data;
+};
 async function summon(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   const tx = await rarityContract.summon(id);
@@ -129,4 +135,5 @@ export {
   convertBigNumber,
   BigNumber,
   readRarityData,
+  pullHeroesData,
 };
