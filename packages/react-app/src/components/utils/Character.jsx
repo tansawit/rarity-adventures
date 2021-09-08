@@ -33,16 +33,23 @@ function convertBigNumber(number) {
 async function embarkAdventure(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   const tx = await rarityContract.adventure(id);
+  // const confirmed = await tx.wait();
+  // console.log("check tx", tx);
+  return tx;
 }
 
 async function summon(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   const tx = await rarityContract.summon(id);
+  const confirmed = await tx.wait();
+  const final = BigNumber(confirmed.events[0].args[2].toString()).toString();
+  return final;
 }
 
 async function levelUp(id, signer) {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   const tx = await rarityContract.level_up(id);
+  return tx;
 }
 
 async function getGoldBalance(id, signer) {
@@ -105,6 +112,7 @@ async function readRarityData(id, signer) {
       .minus(BigNumber(summoner[0].toString()))
       .dividedBy(1e18)
       .toString(),
+    nextAdventure: new Date(summoner[1] * 1000),
   };
   return data;
 }

@@ -3,10 +3,8 @@ import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 import { ethers } from "ethers";
-
 import { Body, Header } from "./components/index.jsx";
 import GET_TRANSFERS from "./graphql/subgraph";
-
 import { addresses, abis } from "@project/contracts";
 import {
   toClassName,
@@ -22,11 +20,8 @@ import {
   BigNumber,
   readRarityData,
 } from "./components/utils/Character";
-
-import Summon from "./components/Summon";
-import CreateCharacter from "./components/CreateCharacter.jsx";
-import UpdateAttributes from "./components/UpdateAttributes.jsx";
 import Heroes from "./components/Heroes/Heroes";
+import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 
@@ -42,18 +37,10 @@ function App() {
   const [claimableGold, setClaimableGold] = useState("");
   const [created, setCreated] = useState(false);
   const [signer, setSigner] = useState("");
-  const [tokenID, setTokenID] = useState([]);
-  const { heroes, setHeroes } = useContext(CharacterContext);
+  const { heroes, setHeroes, tokenID, setTokenID } =
+    useContext(CharacterContext);
   // const web3 = new Web3(Web3.givenProvider || "http://localhost:8546");
   // const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
-
-  const callHeroesList = async (event) => {
-    event.preventDefault();
-    const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
-    // const balance = await rarityContract.balanceOf(address);
-    // const converted = ethers.BigNumber.from(balance.toString());
-    // console.log("before", converted.toNumber());
-  };
 
   const pullHeroesData = async (heroID) => {
     if (heroID.length) {
@@ -106,130 +93,50 @@ function App() {
     }
   }, [accounts, signer]);
 
-  // useEffect(() => {
-  //   if (tokenID.length) {
-  //     const temp = [];
-  //     tokenID.forEach(async (e) => {
-  //       const data = await readRarityData(e, signer);
-  //       console.log("data for", e);
-  //       temp.push({ tokenID: e, ...data });
-  //     });
-  //     console.log("check temp", temp);
-  //     setHeroes(temp);
-  //   }
-  // }, [tokenID]);
   return (
     <div>
       <Header>
         <NavBar></NavBar>
       </Header>
       <Body>
-        <Heroes signer={signer}></Heroes>
-        {/* <div
-          style={{ display: "flex", justifyContent: "space-between" }}
-          className="main"
-        >
-          {/* manage heroes */}
-        {/* <div style={{ marginRight: "100px" }} className="heroes-section">
-            <div>
-              <div style={{ display: "flex", justifyContent: "left" }}>
-                <label htmlFor="example">Enter Class ID to mint: </label>
-                <input id="class" type="text" name="text" />
-              </div>
-              <div>
-                <button
-                  className="btn btn-info"
-                  type="button"
-                  onClick={callHeroesList}
-                >
-                  Check Heroes{" "}
-                </button>
-              </div>
-              or
-              {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
-        {/* <div style={{ display: "flex", justifyContent: "center" }}>
-                <label htmlFor="summoner">
-                  Enter Summoner ID to see stats:{" "}
-                </label>
-                <input id="summoner" type="text" name="text" />
-              </div>
-              <div>
-                <button
-                  value="Send"
-                  style={{
-                    width: "60px",
-                    height: "20px",
-                    color: "black",
-                  }}
-                  onClick={async () => {
-                    const id = document.getElementById("summoner").value;
-                    setID(id);
-                    const charCreated = await characterCreated(id, signer);
-                    setCreated(charCreated);
-                    const data = await readRarityData(id, signer);
-                    const claimable = await getClaimableGold(id, signer);
-                    const balance = await getGoldBalance(id, signer);
-                    console.log("add data", data);
-                    setGoldBalance(balance);
-                    setClaimableGold(claimable);
-                    setCharClass(data["class"]);
-                    setLevel(data["level"]);
-                    setXP(data["xp"]);
-                    setXPRequired(data["xpRequired"]);
-                  }}
-                >
-                  Check stat{" "}
-                </button>
-              </div>
-              {id == 0 ? (
-                <p>please enter summoner ID first</p>
-              ) : (
-                <div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <p>Summoner ID: {id}</p>
-                    <p>Class: {charClass}</p>
-                    <p>Level: {level}</p>
-                    <p>XP: {xp}</p>
-                    <p>
-                      Gold: {goldBalance} ({claimableGold} claimable){" "}
-                      {claimableGold > 0 ? (
-                        <button onClick={() => claimGold(id, signer)}>
-                          Claim
-                        </button>
-                      ) : (
-                        ""
-                      )}
-                    </p>
-                    <p>
-                      XP required to level up (to level {parseInt(level) + 1}) :{" "}
-                      {xpRequired}
-                    </p>
-                    <button onClick={() => embarkAdventure(id, signer)}>
-                      Adventure
-                    </button>
-                  </div>
-                  <div style={{ marginTop: "20px" }}>
-                    {created ? (
-                      <UpdateAttributes id={id} signer={signer} />
-                    ) : (
-                      <CreateCharacter id={id} signer={signer} />
-                    )}
-                  </div>
-                </div>
-              )}
-              {parseInt(xpRequired) == 0 ? (
-                <button onClick={() => levelUp(id, signer)}>Level Up</button>
-              ) : (
-                <div />
-              )}
-            </div>
-          </div>
-          <div className="tavern-section">
-            Class ID Table
-            <Summon signer={signer} />
-          </div> */}
-        {/* </div> */}
+        <Heroes signer={signer} embarkAdventure={embarkAdventure}></Heroes>
+        <Tavern signer={signer}></Tavern>
       </Body>
+      <footer style={{ backgroundColor: "#282c34" }} className="pb-4">
+        <div className="border-top footer-section pt-2">
+          <p className="text-center text-muted">
+            Made with{" "}
+            <span role="img" aria-label="heart">
+              💙
+            </span>
+            by{" "}
+            <a
+              href="https://twitter.com/HawkNguyen189"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Hawk
+            </a>{" "}
+            - Credit to{" "}
+            <a
+              href="https://twitter.com/AndreCronjeTech"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Andre Cronje
+            </a>{" "}
+            for the Idea &{" "}
+            <a
+              href="https://www.artstation.com/mrmccoyed"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Evan Todd-McCoy
+            </a>{" "}
+            for Gifs
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

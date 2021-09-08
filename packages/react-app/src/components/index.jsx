@@ -16,7 +16,7 @@ export const Body = styled.div`
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  // justify-content: center;
   min-height: calc(100vh - 70px);
 `;
 

@@ -7,7 +7,7 @@ const NavBar = () => {
 
   return (
     <div className="container">
-      <nav className="navbar navbar-light bg-gray justify-between">
+      <nav className="navbar navbar-light bg-gray justify-content-between">
         <div className="container-fluid">
           <span className="navbar-brand text-uppercase mb-0 h1 fw-bold text-white-50">
             Rarity
