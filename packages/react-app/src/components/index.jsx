@@ -17,7 +17,7 @@ export const Body = styled.div`
   display: flex;
   flex-direction: column;
   // justify-content: center;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 120px);
 `;
 
 export const Image = styled.img`
