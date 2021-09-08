@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
-import { ethers } from "ethers";
+// import { ethers } from "ethers";
+// import { Contract } from "@ethersproject/contracts";
 import { Body, Header } from "./components/index.jsx";
 import GET_TRANSFERS from "./graphql/subgraph";
 import { addresses, abis } from "@project/contracts";
@@ -24,6 +24,8 @@ import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
+import { ContractContext } from "./components/Context/ContractContext.jsx";
+import { setupContracts } from "./components/utils/setupContracts";
 
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
@@ -37,31 +39,46 @@ function App() {
   const [claimableGold, setClaimableGold] = useState("");
   const [created, setCreated] = useState(false);
   const [signer, setSigner] = useState("");
+  const [refresh, setRefresh] = useState(false);
   const { heroes, setHeroes, tokenID, setTokenID } =
     useContext(CharacterContext);
-  // const web3 = new Web3(Web3.givenProvider || "http://localhost:8546");
-  // const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+  const { contract, setContract } = useContext(ContractContext);
 
+  const initiateRarityData = async () => {
+    try {
+      if (window.ethereum) {
+        const contracts = await setupContracts({
+          onError: () => alert("Please, switch to Fantom network"),
+          onRefresh: () => setRefresh(!refresh),
+        });
+        console.log("contract", contracts);
+        setContract(contracts);
+      } else {
+        alert.error(
+          "Please, try to use Metamask or some client to connect your wallet"
+        );
+      }
+    } catch (ex) {
+      console.log({ isError: true, stack: ex });
+    }
+  };
   React.useEffect(() => {
     // initiate data signer then account address
     const initiateData = async () => {
-      if (!loading && !error && data && data.transfers) {
-        const defaultProvider = new Web3Provider(window.ethereum);
-        const signerData = defaultProvider.getSigner();
-        const address = await signerData.getAddress();
-        setAccounts(address);
-        setSigner(signerData);
-      }
+      // if (!loading && !error && data && data.transfers) {
+      initiateRarityData();
+      // }
     };
     initiateData();
-  }, [loading, error, data]);
+  }, [refresh]);
+  // }, [loading, error, data]);
 
   React.useEffect(() => {
     //fethcing all NFT of the address using etherscan API
     const fetchHeroes = async () => {
       try {
         const response = await fetch(
-          `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${addresses.rarity}&address=${accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
+          `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${addresses.rarity}&address=${contract?.accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
         );
         const data = await response.json();
         console.log("data", data);
@@ -75,10 +92,10 @@ function App() {
         console.log("error", error);
       }
     };
-    if (accounts && signer) {
+    if (contract?.accounts && contract?.signer) {
       fetchHeroes();
     }
-  }, [accounts, signer]);
+  }, [contract?.accounts, contract?.signer]);
 
   return (
     <div>
@@ -86,8 +103,11 @@ function App() {
         <NavBar></NavBar>
       </Header>
       <Body>
-        <Heroes signer={signer} embarkAdventure={embarkAdventure}></Heroes>
-        <Tavern signer={signer}></Tavern>
+        <Heroes
+          signer={contract?.signer}
+          embarkAdventure={embarkAdventure}
+        ></Heroes>
+        <Tavern signer={contract?.signer}></Tavern>
       </Body>
       <footer style={{ backgroundColor: "#282c34" }} className="pb-4">
         <div className="border-top footer-section pt-2">

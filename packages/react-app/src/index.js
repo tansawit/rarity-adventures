@@ -5,6 +5,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import "./index.css";
 import App from "./App.js";
 import CharacterContextProvider from "./components/Context/CharacterContext";
+import ContractContextProvider from "./components/Context/ContractContext";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -13,9 +14,11 @@ const client = new ApolloClient({
 });
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <CharacterContextProvider>
-      <App />
-    </CharacterContextProvider>
+    <ContractContextProvider>
+      <CharacterContextProvider>
+        <App />
+      </CharacterContextProvider>
+    </ContractContextProvider>
   </ApolloProvider>,
   document.getElementById("root")
 );

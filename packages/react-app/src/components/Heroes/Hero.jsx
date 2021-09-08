@@ -7,11 +7,9 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
     const response = await embarkAdventure(tokenID, signer);
     if (response.confirmations) {
       //got confirmed
-      console.log("adventure", response);
       const today = new Date();
       let tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
-      console.log("date", tomorrow);
       setElement({ ...element, nextAdventure: tomorrow });
     }
   };
