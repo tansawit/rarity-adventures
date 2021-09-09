@@ -10,6 +10,7 @@ import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
 import Footer from "./components/Footer/Footer";
+import HeroCave from "./components/HeroCave/HeroCave";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 import { ContractContext } from "./components/Context/ContractContext.jsx";
 import { setupContracts } from "./components/utils/setupContracts";
@@ -89,6 +90,12 @@ function App() {
                 embarkAdventure={embarkAdventure}
               ></Heroes>
               <Tavern signer={contract?.signer}></Tavern>
+            </Route>
+            <Route path="/herocave/:tokenID">
+              <HeroCave
+                signer={contract?.signer}
+                embarkAdventure={embarkAdventure}
+              ></HeroCave>
             </Route>
           </Switch>
         </Body>

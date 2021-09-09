@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { pullHeroesData } from "../utils/Character";
+import { Link } from "react-router-dom";
+
 // import { CharacterContext } from "../Context/CharacterContext";
 // import { ContractContext } from "../Context/ContractContext";
 
@@ -7,6 +9,7 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
   const [element, setElement] = useState();
   // const { heroes, setHeroes } = useContext(CharacterContext);
   const handleAdventure = async () => {
+    // need to use tokenID.id || tokenID in case we use adv all and push for a re-render
     const response = await embarkAdventure(tokenID.id || tokenID, signer);
     if (response.confirmations) {
       //got confirmed
@@ -27,17 +30,22 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
     <div className="col-sm-4 my-3">
       <div className="row">
         <div className="col-sm-3">
-          {element ? (
-            <img
-              className="img-thumbnail"
-              src={require(`../../media/heroes-icon/${element.class?.toLowerCase()}.png`)}
-              alt={element.class}
-            />
-          ) : (
-            <div className="spinner-border text-info" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          )}
+          <Link
+            className="link-primary"
+            to={`/herocave/${tokenID.id || tokenID}`}
+          >
+            {element ? (
+              <img
+                className="img-thumbnail"
+                src={require(`../../media/heroes-icon/${element.class?.toLowerCase()}.png`)}
+                alt={element.class}
+              />
+            ) : (
+              <div className="spinner-border text-info" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            )}
+          </Link>
         </div>
         <div className="col-sm-9">
           {element ? (
