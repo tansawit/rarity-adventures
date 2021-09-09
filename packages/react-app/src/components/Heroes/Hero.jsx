@@ -24,8 +24,10 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
       const response = await pullHeroesData(tokenID.id || tokenID, signer);
       setElement(response);
     };
-    getData();
-  }, [tokenID]);
+    if (tokenID && signer) {
+      getData();
+    }
+  }, [tokenID, signer]);
   return (
     <div className="col-sm-4 my-3">
       <div className="row">
@@ -34,7 +36,7 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
             className="link-primary"
             to={`/herocave/${tokenID.id || tokenID}`}
           >
-            {element ? (
+            {element?.class ? (
               <img
                 className="img-thumbnail"
                 src={require(`../../media/heroes-icon/${element.class?.toLowerCase()}.png`)}
