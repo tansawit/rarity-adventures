@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { pullHeroesData } from "../utils/Character";
+// import { CharacterContext } from "../Context/CharacterContext";
+// import { ContractContext } from "../Context/ContractContext";
 
 const Hero = ({ tokenID, embarkAdventure, signer }) => {
   const [element, setElement] = useState();
+  // const { heroes, setHeroes } = useContext(CharacterContext);
   const handleAdventure = async () => {
-    const response = await embarkAdventure(tokenID, signer);
+    const response = await embarkAdventure(tokenID.id || tokenID, signer);
     if (response.confirmations) {
       //got confirmed
       const today = new Date();
@@ -15,11 +18,11 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
   };
   useEffect(() => {
     const getData = async () => {
-      const response = await pullHeroesData(tokenID, signer);
+      const response = await pullHeroesData(tokenID.id || tokenID, signer);
       setElement(response);
     };
     getData();
-  }, []);
+  }, [tokenID]);
   return (
     <div className="col-sm-4 my-3">
       <div className="row">
@@ -46,13 +49,15 @@ const Hero = ({ tokenID, embarkAdventure, signer }) => {
                 </span>
               </p>
               <p className="fw-bold text-white-50">
-                {tokenID} | XP: {element.xp} ({element.xpRequired} remaining )
+                {tokenID.id || tokenID} | XP: {element.xp} ({element.xpRequired}{" "}
+                remaining )
               </p>
               <p className="text-white-50">Gold to be claimed</p>
               <button
                 className="link-light btn btn-link"
                 disabled={
                   element.nextAdventure?.getTime() >= new Date().getTime() ||
+                  tokenID.id ||
                   tokenID === null
                 }
                 onClick={(e) => {

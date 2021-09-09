@@ -1,25 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Web3Provider } from "@ethersproject/providers";
-import { useQuery } from "@apollo/react-hooks";
+// import { Web3Provider } from "@ethersproject/providers";
 // import { ethers } from "ethers";
 // import { Contract } from "@ethersproject/contracts";
 import { Body, Header } from "./components/index.jsx";
-import GET_TRANSFERS from "./graphql/subgraph";
 import { addresses, abis } from "@project/contracts";
-import {
-  toClassName,
-  embarkAdventure,
-  summon,
-  levelUp,
-  getGoldBalance,
-  getClaimableGold,
-  claimGold,
-  characterCreated,
-  getAbilityScores,
-  convertBigNumber,
-  BigNumber,
-  readRarityData,
-} from "./components/utils/Character";
+import { embarkAdventure } from "./components/utils/Character";
 import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
@@ -28,17 +13,6 @@ import { ContractContext } from "./components/Context/ContractContext.jsx";
 import { setupContracts } from "./components/utils/setupContracts";
 
 function App() {
-  const { loading, error, data } = useQuery(GET_TRANSFERS);
-  const [accounts, setAccounts] = useState("");
-  const [id, setID] = useState(0);
-  const [charClass, setCharClass] = useState("");
-  const [level, setLevel] = useState("");
-  const [xp, setXP] = useState("");
-  const [xpRequired, setXPRequired] = useState("");
-  const [goldBalance, setGoldBalance] = useState("");
-  const [claimableGold, setClaimableGold] = useState("");
-  const [created, setCreated] = useState(false);
-  const [signer, setSigner] = useState("");
   const [refresh, setRefresh] = useState(false);
   const { heroes, setHeroes, tokenID, setTokenID } =
     useContext(CharacterContext);

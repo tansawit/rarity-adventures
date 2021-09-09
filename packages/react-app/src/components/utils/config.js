@@ -1,3 +1,29 @@
+const RARITY_ADDRESS_NAMES = "0x4c40ce3fb33a6781c903bc830804de4195cc966f";
+
+const WEB3_LOCAL_INSTANCE = "http://localhost:7545";
+const WEB3_FANTOM_INSTANCE = "wss://wsapi.fantom.network";
+
+const FANTOM_ID = 250;
+
+const FANTOM_NETWORK = {
+  method: "wallet_addEthereumChain",
+  params: [
+    {
+      chainId: `0x${FANTOM_ID.toString(16)}`,
+      chainName: "Fantom Opera",
+      nativeCurrency: {
+        name: "FTM",
+        symbol: "ftm",
+        decimals: 18,
+      },
+      rpcUrls: ["https://rpc.ftm.tools"],
+      blockExplorerUrls: [`https://ftmscan.com`],
+    },
+  ],
+};
+
+const RARITY_SUMMONERS = (accountId) =>
+  `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb&address=${accountId}&tag=latest&apikey=81CTWCS4N63GKQ4FUZ2YMC85M98YGUNTCN`;
 const RARITY_ABI = [
   {
     anonymous: false,
@@ -597,33 +623,18 @@ const RARITY_ABI_NAMES = [
     type: "function",
   },
 ];
-const RARITY_ADDRESS_NAMES = "0x4c40ce3fb33a6781c903bc830804de4195cc966f";
 
-const WEB3_LOCAL_INSTANCE = "http://localhost:7545";
-const WEB3_FANTOM_INSTANCE = "wss://wsapi.fantom.network";
+const MULTIADVENTURE_CONTRACT = "0x0D4C98901563ca730332e841EDBCB801fe9F2551";
 
-const FANTOM_ID = 250;
-
-const FANTOM_NETWORK = {
-  method: "wallet_addEthereumChain",
-  params: [
-    {
-      chainId: `0x${FANTOM_ID.toString(16)}`,
-      chainName: "Fantom Opera",
-      nativeCurrency: {
-        name: "FTM",
-        symbol: "ftm",
-        decimals: 18,
-      },
-      rpcUrls: ["https://rpc.ftm.tools"],
-      blockExplorerUrls: [`https://ftmscan.com`],
-    },
-  ],
-};
-
-const RARITY_SUMMONERS = (accountId) =>
-  `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb&address=${accountId}&tag=latest&apikey=81CTWCS4N63GKQ4FUZ2YMC85M98YGUNTCN`;
-
+const MULTIADVENTURE_ABI = [
+  {
+    inputs: [{ internalType: "uint256[]", name: "_ids", type: "uint256[]" }],
+    name: "adventureTime",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
 export {
   RARITY_ABI,
   RARITY_ADDRESS,
@@ -636,4 +647,6 @@ export {
   FANTOM_NETWORK,
   FANTOM_ID,
   RARITY_SUMMONERS,
+  MULTIADVENTURE_CONTRACT,
+  MULTIADVENTURE_ABI,
 };

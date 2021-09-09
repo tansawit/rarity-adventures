@@ -10,10 +10,11 @@ import {
   FANTOM_ID,
   RARITY_ABI_NAMES,
   RARITY_ADDRESS_NAMES,
+  MULTIADVENTURE_CONTRACT,
+  MULTIADVENTURE_ABI,
 } from "./config";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
-  // await window.ethereum.send("eth_requestAccounts");
   const defaultProvider = new Web3Provider(window.ethereum);
   const signer = await defaultProvider.getSigner();
   const webId = await signer.getChainId();
@@ -34,11 +35,17 @@ export const setupContracts = async ({ onError, onRefresh }) => {
       RARITY_ABI_NAMES,
       signer
     );
+    const multiAdventureContract = new Contract(
+      MULTIADVENTURE_CONTRACT,
+      MULTIADVENTURE_ABI,
+      signer
+    );
     return {
       accounts: accounts,
       contract: rarityContract,
       contract_attributes: attributesContract,
       contract_names: namesContract,
+      contract_multiAdventure: multiAdventureContract,
       signer: signer,
     };
   }

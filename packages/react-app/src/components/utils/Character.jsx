@@ -111,6 +111,7 @@ async function readRarityData(id, signer) {
   const summoner = await rarityContract.summoner(id);
   const xpRequired = await rarityContract.xp_required(summoner[3].toNumber());
   const data = {
+    tokenID: id,
     class: toClassName(summoner[2].toNumber()),
     level: summoner[3].toString(),
     xp: convertBigNumber(summoner[0]),
@@ -122,6 +123,31 @@ async function readRarityData(id, signer) {
   };
   return data;
 }
+const approve = async (spender, signer) => {
+  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
+  try {
+    return await rarityContract?.setApprovalForAll(spender, true);
+  } catch (e) {
+    return;
+  }
+};
+
+const allowance = async (owner, spender, signer) => {
+  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
+  try {
+    return await rarityContract?.isApprovedForAll(owner, spender);
+  } catch (e) {
+    return false;
+  }
+};
+const nextAdventure = async (id, signer) => {
+  const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
+  try {
+    return await rarityContract?.adventurers_log(id);
+  } catch (e) {
+    return "0";
+  }
+};
 export {
   toClassName,
   embarkAdventure,
@@ -136,4 +162,7 @@ export {
   BigNumber,
   readRarityData,
   pullHeroesData,
+  approve,
+  allowance,
+  nextAdventure,
 };
