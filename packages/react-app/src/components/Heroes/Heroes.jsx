@@ -30,6 +30,7 @@ const Heroes = ({ embarkAdventure, signer }) => {
         temp[multiAdv.summonersIndexes[i]] = { id: temp[i], update: true };
       }
       setTokenID(temp);
+      setMultiAdv({ ...multiAdv, available: false });
     }
     return confirm;
   };
@@ -55,9 +56,11 @@ const Heroes = ({ embarkAdventure, signer }) => {
     for (let i = 0; i < tokenID.length; i++) {
       const nextAdv = await nextAdventure(tokenID[i], signer);
       const nextAdvTimestamp = parseInt(nextAdv.toString());
-      if (nextAdvTimestamp * 1000 < Date.now()) {
-        filtered.push(tokenID[i]);
-        indexes.push(i);
+      if (nextAdvTimestamp) {
+        if (nextAdvTimestamp * 1000 < Date.now()) {
+          filtered.push(tokenID[i]);
+          indexes.push(i);
+        }
       }
     }
     setMultiAdv({

@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { HashRouter, Switch, Route } from "react-router-dom";
 // import { Web3Provider } from "@ethersproject/providers";
 // import { ethers } from "ethers";
 // import { Contract } from "@ethersproject/contracts";
@@ -8,6 +9,7 @@ import { embarkAdventure } from "./components/utils/Character";
 import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
+import Footer from "./components/Footer/Footer";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 import { ContractContext } from "./components/Context/ContractContext.jsx";
 import { setupContracts } from "./components/utils/setupContracts";
@@ -72,59 +74,28 @@ function App() {
   }, [contract?.accounts, contract?.signer]);
 
   return (
-    <div>
-      <Header>
-        <NavBar></NavBar>
-      </Header>
-      <Body>
-        <Heroes
-          signer={contract?.signer}
-          embarkAdventure={embarkAdventure}
-        ></Heroes>
-        <Tavern signer={contract?.signer}></Tavern>
-      </Body>
-      <footer style={{ backgroundColor: "#282c34" }} className="pb-4">
-        <div className="border-top footer-section pt-2">
-          <p className="text-center text-muted">
-            Made with{" "}
-            <span role="img" aria-label="heart">
-              💙
-            </span>
-            by{" "}
-            <a
-              href="https://twitter.com/HawkNguyen189"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              Hawk
-            </a>{" "}
-            - Credit to{" "}
-            <a
-              href="https://twitter.com/AndreCronjeTech"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              Andre Cronje
-            </a>{" "}
-            for the Idea &{" "}
-            <a
-              href="https://www.artstation.com/mrmccoyed"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              Evan Todd-McCoy
-            </a>{" "}
-            for Gifs
-          </p>
-          <p className="text-center text-white-50">
-            Tip me here
-            <span className="link-primary">
-              {" "}
-              0xf438A14edD1757411D4a4c9f45b4D1CBdE73EAba
-            </span>
-          </p>
-        </div>
-      </footer>
+    <div className="App">
+      <HashRouter>
+        <Route path="/">
+          <Header>
+            <NavBar></NavBar>
+          </Header>
+        </Route>
+        <Body>
+          <Switch>
+            <Route exact path="/">
+              <Heroes
+                signer={contract?.signer}
+                embarkAdventure={embarkAdventure}
+              ></Heroes>
+              <Tavern signer={contract?.signer}></Tavern>
+            </Route>
+          </Switch>
+        </Body>
+        <Route path="/">
+          <Footer></Footer>
+        </Route>
+      </HashRouter>
     </div>
   );
 }
