@@ -126,8 +126,11 @@ async function readRarityData(id, signer) {
 const approve = async (spender, signer) => {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   try {
-    return await rarityContract?.setApprovalForAll(spender, true);
+    const tx = await rarityContract?.setApprovalForAll(spender, true);
+    const confirmed = await tx.wait();
+    return confirmed;
   } catch (e) {
+    console.log("approve error", e);
     return;
   }
 };
@@ -143,9 +146,11 @@ const allowance = async (owner, spender, signer) => {
 const nextAdventure = async (id, signer) => {
   const rarityContract = new Contract(addresses.rarity, abis.rarity, signer);
   try {
+    // const nextAdvTime = await rarityContract?.adventurers_log(id);
+    // return BigNumber(nextAdvTime.toString());
     return await rarityContract?.adventurers_log(id);
   } catch (e) {
-    return "0";
+    return "error";
   }
 };
 export {

@@ -22,7 +22,6 @@ export default ({ signer }) => {
   ];
   const handleSummon = async (classID) => {
     const newHeroID = await summon(classID, signer);
-    console.log("new hero ID", newHeroID);
     setTokenID((prevState) => [...prevState, newHeroID]);
   };
   return (

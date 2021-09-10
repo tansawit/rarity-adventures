@@ -7,12 +7,28 @@ const HeroCave = ({ embarkAdventure, signer }) => {
   //   const router = useRouter();
   const [heroID, setHeroID] = useState(485854);
   return (
-    <div>
-      <Hero
-        tokenID={heroID}
-        embarkAdventure={embarkAdventure}
-        signer={signer}
-      ></Hero>
+    <div className="container">
+      <div className="row">
+        <div className="col-sm-6 container">
+          <div className="row">
+            <Hero
+              tokenID={heroID}
+              embarkAdventure={embarkAdventure}
+              signer={signer}
+              animation={true}
+            ></Hero>
+          </div>
+        </div>
+        <div className="col-sm-6 container">
+          <div className="row">
+            <Hero
+              tokenID={heroID}
+              embarkAdventure={embarkAdventure}
+              signer={signer}
+            ></Hero>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

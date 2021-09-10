@@ -54,14 +54,16 @@ const Heroes = ({ embarkAdventure, signer }) => {
     const filtered = [];
     const indexes = [];
     for (let i = 0; i < tokenID.length; i++) {
-      const nextAdv = await nextAdventure(tokenID[i], signer);
-      const nextAdvTimestamp = parseInt(nextAdv.toString());
-      if (nextAdvTimestamp) {
+      const nextAdv = await nextAdventure(tokenID[i]?.id || tokenID[i], signer);
+      if (nextAdv !== "error") {
+        const nextAdvTimestamp = parseInt(nextAdv.toString());
+        // if (nextAdvTimestamp) {
         if (nextAdvTimestamp * 1000 < Date.now()) {
           filtered.push(tokenID[i]);
           indexes.push(i);
         }
       }
+      // }
     }
     setMultiAdv({
       approved: allowed,
@@ -74,7 +76,7 @@ const Heroes = ({ embarkAdventure, signer }) => {
   useEffect(() => {
     if (!contract?.accounts) return;
     filter();
-  }, [filter, contract?.accounts]);
+  }, [filter, contract?.accounts, tokenID]);
 
   return (
     <div className="heroes-section container py-3">
@@ -108,12 +110,13 @@ const Heroes = ({ embarkAdventure, signer }) => {
         {tokenID.length &&
           tokenID.map((element, index) => {
             return (
-              <Hero
-                tokenID={element}
-                key={index}
-                embarkAdventure={embarkAdventure}
-                signer={signer}
-              ></Hero>
+              <div className="col-sm-4 my-3" key={index}>
+                <Hero
+                  tokenID={element}
+                  embarkAdventure={embarkAdventure}
+                  signer={signer}
+                ></Hero>
+              </div>
             );
           })}
       </div>
