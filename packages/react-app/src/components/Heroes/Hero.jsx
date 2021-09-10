@@ -62,7 +62,7 @@ const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
               </span>
             </p>
             <p className="fw-bold text-white-50">
-              {tokenID?.id || tokenID} | XP: {element.xp} ({element.xpRequired}{" "}
+              {element.tokenID} | XP: {element.xp} ({element.xpRequired}{" "}
               remaining )
             </p>
             <p className="text-white-50">Gold to be claimed</p>
