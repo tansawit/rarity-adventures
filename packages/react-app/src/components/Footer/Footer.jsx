@@ -11,7 +11,7 @@ const Footer = () => {
           </span>
           by{" "}
           <a
-            href="https://twitter.com/HawkNguyen189"
+            href="https://twitter.com/GoldHawkEye189"
             target="_blank"
             rel="noreferrer noopener"
           >
