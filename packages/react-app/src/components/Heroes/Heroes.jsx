@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { CharacterContext } from "../Context/CharacterContext";
 import { ContractContext } from "../Context/ContractContext.jsx";
-import { approve, allowance, nextAdventure } from "../utils/Character";
+import useRarity from "../../hooks/useRarity";
 import { MULTIADVENTURE_CONTRACT } from "../utils/config";
 import Hero from "./Hero";
 
-const Heroes = ({ embarkAdventure, signer }) => {
+const Heroes = ({ signer }) => {
   const { tokenID, setTokenID } = useContext(CharacterContext);
   const { contract } = useContext(ContractContext);
+  const { approve, allowance, nextAdventure } = useRarity();
   const [multiAdv, setMultiAdv] = useState({
     approved: false,
     available: false,
@@ -27,7 +28,11 @@ const Heroes = ({ embarkAdventure, signer }) => {
     if (confirm) {
       const temp = [...tokenID];
       for (let i = 0; i < multiAdv.summonersIndexes.length; i++) {
-        temp[multiAdv.summonersIndexes[i]] = { id: temp[i], update: true };
+        //we're converting tokenID into object and adding update field to push a re-render
+        temp[multiAdv.summonersIndexes[i]] = {
+          id: tokenID[multiAdv.summonersIndexes[i]],
+          update: true,
+        };
       }
       setTokenID(temp);
       setMultiAdv({ ...multiAdv, available: false });
@@ -54,7 +59,7 @@ const Heroes = ({ embarkAdventure, signer }) => {
     const filtered = [];
     const indexes = [];
     for (let i = 0; i < tokenID.length; i++) {
-      const nextAdv = await nextAdventure(tokenID[i]?.id || tokenID[i], signer);
+      const nextAdv = await nextAdventure(tokenID[i].id || tokenID[i], signer);
       if (nextAdv !== "error") {
         const nextAdvTimestamp = parseInt(nextAdv.toString());
         // if (nextAdvTimestamp) {
@@ -111,11 +116,7 @@ const Heroes = ({ embarkAdventure, signer }) => {
           tokenID.map((element, index) => {
             return (
               <div className="col-sm-4 my-3" key={index}>
-                <Hero
-                  tokenID={element}
-                  embarkAdventure={embarkAdventure}
-                  signer={signer}
-                ></Hero>
+                <Hero tokenID={element} signer={signer}></Hero>
               </div>
             );
           })}

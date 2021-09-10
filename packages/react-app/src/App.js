@@ -5,7 +5,6 @@ import { HashRouter, Switch, Route } from "react-router-dom";
 // import { Contract } from "@ethersproject/contracts";
 import { Body, Header } from "./components/index.jsx";
 import { addresses, abis } from "@project/contracts";
-import { embarkAdventure } from "./components/utils/Character";
 import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
@@ -85,17 +84,11 @@ function App() {
         <Body>
           <Switch>
             <Route exact path="/">
-              <Heroes
-                signer={contract?.signer}
-                embarkAdventure={embarkAdventure}
-              ></Heroes>
+              <Heroes signer={contract?.signer}></Heroes>
               <Tavern signer={contract?.signer}></Tavern>
             </Route>
             <Route path="/herocave/:tokenID">
-              <HeroCave
-                signer={contract?.signer}
-                embarkAdventure={embarkAdventure}
-              ></HeroCave>
+              <HeroCave signer={contract?.signer}></HeroCave>
             </Route>
           </Switch>
         </Body>

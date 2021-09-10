@@ -1,11 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext } from "react";
-import { Contract } from "@ethersproject/contracts";
-import { addresses, abis } from "@project/contracts";
-import { summon } from "../utils/Character";
+import useRarity from "../../hooks/useRarity";
 import { CharacterContext } from "../Context/CharacterContext";
 
 export default ({ signer }) => {
+  const { summon } = useRarity();
   const { setTokenID } = useContext(CharacterContext);
   const classes = [
     { id: 1, name: "Barbarian" },

@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
-import { pullHeroesData } from "../utils/Character";
+import useRarity from "../../hooks/useRarity";
+import useGold from "../../hooks/useGold";
 import { Link } from "react-router-dom";
 
 // import { CharacterContext } from "../Context/CharacterContext";
 // import { ContractContext } from "../Context/ContractContext";
 
-const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
-  const [element, setElement] = useState();
+const Hero = ({ tokenID, signer, animation }) => {
+  const [element, setElement] = useState({
+    tokenID: null,
+    class: null,
+    level: null,
+    xp: null,
+    xpRequired: null,
+    nextAdventure: null,
+  });
+  const [gold, setGold] = useState({ goldBalance: null, goldClaimable: null });
+  //all functions related to rarity address
+  const { embarkAdventure, pullHeroesData, levelUp, checkXpRequired } =
+    useRarity();
+  //all functions related to gold address
+  const { getClaimableGold, getGoldBalance, claimGold } = useGold();
+
   // const { heroes, setHeroes } = useContext(CharacterContext);
   const handleAdventure = async () => {
     // need to use tokenID.id || tokenID in case we use adv all and push for a re-render
@@ -19,15 +34,53 @@ const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
       setElement({ ...element, nextAdventure: tomorrow });
     }
   };
+  const handleLevelUp = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await levelUp(element.tokenID, signer);
+      const newXpRequired = await checkXpRequired(parseInt(element.level) + 1);
+      if (response) {
+        setElement((prevState) => ({
+          ...prevState,
+          level: parseInt(prevState.level) + 1,
+          xp: 0,
+          xpRequired: newXpRequired,
+        }));
+      }
+    } catch (e) {
+      console.log("level up error", e);
+    }
+  };
+  const handleClaim = async (e) => {
+    e.preventDefault();
+    const response = await claimGold(tokenID.id || tokenID);
+    if (response) {
+      const goldBalance = await getGoldBalance(tokenID.id || tokenID);
+      setGold((prevState) => ({
+        ...prevState,
+        goldBalance: goldBalance,
+        goldClaimable: 0,
+      }));
+    }
+  };
+
   useEffect(() => {
     const getData = async () => {
-      const response = await pullHeroesData(tokenID.id || tokenID, signer);
-      setElement(response);
+      const heroData = await pullHeroesData(tokenID.id || tokenID, signer);
+      const goldBalance = await getGoldBalance(tokenID.id || tokenID);
+      const goldClaimable = await getClaimableGold(tokenID.id || tokenID);
+      setElement(heroData);
+      setGold((prevState) => ({
+        ...prevState,
+        goldBalance: parseFloat(goldBalance),
+        goldClaimable: parseFloat(goldClaimable),
+      }));
     };
     if (tokenID && signer) {
       getData();
     }
   }, [tokenID, signer]);
+
   return (
     <div className="row">
       <div className="col-sm-3">
@@ -35,7 +88,7 @@ const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
           className="link-primary"
           to={`/herocave/${tokenID.id || tokenID}`}
         >
-          {element?.class ? (
+          {element.class ? (
             <img //gif version if in hero cave
               className="img-thumbnail"
               src={require(`../../media/${
@@ -53,7 +106,7 @@ const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
         </Link>
       </div>
       <div className="col-sm-9">
-        {element ? (
+        {element.tokenID ? (
           <div className="hero-container">
             <p>
               <span className="fw-bolder">{element.class} </span>
@@ -62,10 +115,35 @@ const Hero = ({ tokenID, embarkAdventure, signer, animation }) => {
               </span>
             </p>
             <p className="fw-bold text-white-50">
-              {element.tokenID} | XP: {element.xp} ({element.xpRequired}{" "}
-              remaining )
+              {element.tokenID} | XP: {element.xp}{" "}
+              {element.xpRequired === "0" ? (
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={handleLevelUp}
+                  type="button"
+                >
+                  Level Up
+                </button>
+              ) : (
+                `(${element.xpRequired} remaining)`
+              )}
             </p>
-            <p className="text-white-50">Gold to be claimed</p>
+            <div className="gold-section row">
+              <p className="text-white-50 col-sm">
+                Gold Balance: {gold.goldBalance}
+              </p>
+              {gold.goldClaimable ? (
+                <button
+                  className="btn btn-light col-sm btn-sm"
+                  onClick={handleClaim}
+                  type="button"
+                >
+                  Claim Gold
+                </button>
+              ) : (
+                ""
+              )}
+            </div>
             <button
               className="link-light btn btn-link"
               disabled={

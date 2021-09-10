@@ -1,18 +1,21 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import {
-  WEB3_FANTOM_INSTANCE,
-  RARITY_ABI,
-  RARITY_ADDRESS,
-  RARITY_ABI_ATTRIBUTES,
-  RARITY_ADDRESS_ATTRIBUTES,
   FANTOM_NETWORK,
   FANTOM_ID,
-  RARITY_ABI_NAMES,
+  RARITY_ADDRESS,
+  ATTRIBUTES_CONTRACT,
   RARITY_ADDRESS_NAMES,
   MULTIADVENTURE_CONTRACT,
-  MULTIADVENTURE_ABI,
+  GOLD_CONTRACTS,
+  DUNGEONS,
 } from "./config";
+
+import RARITY_ABI from "../constants/abis/rarity.json";
+import GOLD_ABI from "../constants/abis/gold.json";
+import ATTRIBUTES_ABI from "../constants/abis/attributes.json";
+import MULTIADVENTURE_ABI from "../constants/abis/multiadventure.json";
+import DUNGEON_ABI from "../constants/abis/dungeon.json";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
   const defaultProvider = new Web3Provider(window.ethereum);
@@ -26,27 +29,30 @@ export const setupContracts = async ({ onError, onRefresh }) => {
     const accounts = await signer.getAddress();
     const rarityContract = new Contract(RARITY_ADDRESS, RARITY_ABI, signer);
     const attributesContract = new Contract(
-      RARITY_ADDRESS_ATTRIBUTES,
-      RARITY_ABI_ATTRIBUTES,
+      ATTRIBUTES_CONTRACT,
+      ATTRIBUTES_ABI,
       signer
     );
-    const namesContract = new Contract(
-      RARITY_ADDRESS_NAMES,
-      RARITY_ABI_NAMES,
-      signer
-    );
+    // const namesContract = new Contract(
+    //   RARITY_ADDRESS_NAMES,
+    //   RARITY_ABI_NAMES,
+    //   signer
+    // );
     const multiAdventureContract = new Contract(
       MULTIADVENTURE_CONTRACT,
       MULTIADVENTURE_ABI,
       signer
     );
+    const goldContract = new Contract(GOLD_CONTRACTS, GOLD_ABI, signer);
+
     return {
       accounts: accounts,
-      contract: rarityContract,
+      rarityContract: rarityContract,
       contract_attributes: attributesContract,
-      contract_names: namesContract,
+      // contract_names: namesContract,
       contract_multiAdventure: multiAdventureContract,
       signer: signer,
+      goldContract: goldContract,
     };
   }
 };

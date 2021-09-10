@@ -2,31 +2,26 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRouter } from "../../hooks/useRouter";
 import Hero from "../Heroes/Hero";
+import Attribute from "./Attribute";
+import useRarity from "../../hooks/useRarity";
 
-const HeroCave = ({ embarkAdventure, signer }) => {
+const HeroCave = ({ signer }) => {
   //   const router = useRouter();
+  const { embarkAdventure } = useRarity();
   const [heroID, setHeroID] = useState(485854);
   return (
     <div className="container">
       <div className="row">
         <div className="col-sm-6 container">
-          <div className="row">
-            <Hero
-              tokenID={heroID}
-              embarkAdventure={embarkAdventure}
-              signer={signer}
-              animation={true}
-            ></Hero>
-          </div>
+          <Hero
+            tokenID={heroID}
+            embarkAdventure={embarkAdventure}
+            signer={signer}
+            animation={true}
+          ></Hero>
         </div>
         <div className="col-sm-6 container">
-          <div className="row">
-            <Hero
-              tokenID={heroID}
-              embarkAdventure={embarkAdventure}
-              signer={signer}
-            ></Hero>
-          </div>
+          <Attribute></Attribute>
         </div>
       </div>
     </div>
