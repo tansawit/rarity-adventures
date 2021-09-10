@@ -1,8 +1,6 @@
-import { Contract } from "@ethersproject/contracts";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
 import { ContractContext } from "../components/Context/ContractContext";
-import { addresses, abis } from "@project/contracts";
 import toClassName from "../components/constants/classes";
 
 const useRarity = () => {
@@ -37,24 +35,10 @@ const useRarity = () => {
   }
 
   async function characterCreated(id, signer) {
-    const rarityAttributesContract = new Contract(
-      addresses.rarityAttributes,
-      abis.rarityAttributes,
-      signer
-    );
-    const data = await rarityAttributesContract.character_created(id);
+    const data = await contract.rarityContract.character_created(id);
     return data;
   }
 
-  async function getAbilityScores(id, signer) {
-    const rarityAttributesContract = new Contract(
-      addresses.rarityAttributes,
-      abis.rarityAttributes,
-      signer
-    );
-    const data = await rarityAttributesContract.ability_scores(id);
-    console.log(data);
-  }
   const checkXpRequired = async (currentLevel) => {
     const xpRequired = await contract.rarityContract.xp_required(
       parseInt(currentLevel)
@@ -115,7 +99,6 @@ const useRarity = () => {
     summon,
     levelUp,
     characterCreated,
-    getAbilityScores,
     convertBigNumber,
     BigNumber,
     readRarityData,

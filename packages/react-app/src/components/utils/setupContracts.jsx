@@ -48,7 +48,7 @@ export const setupContracts = async ({ onError, onRefresh }) => {
     return {
       accounts: accounts,
       rarityContract: rarityContract,
-      contract_attributes: attributesContract,
+      contractAttributes: attributesContract,
       // contract_names: namesContract,
       contract_multiAdventure: multiAdventureContract,
       signer: signer,

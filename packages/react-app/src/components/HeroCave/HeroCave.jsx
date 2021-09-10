@@ -6,11 +6,12 @@ import Attribute from "./Attribute";
 import useRarity from "../../hooks/useRarity";
 
 const HeroCave = ({ signer }) => {
-  //   const router = useRouter();
+  const router = useRouter();
   const { embarkAdventure } = useRarity();
-  const [heroID, setHeroID] = useState(485854);
+  const [heroID, setHeroID] = useState(router.query.tokenID);
   return (
-    <div className="container">
+    <div className="container py-3">
+      <p className="h1 text-uppercase fw-bold text-white py-3"> Hero Cave</p>
       <div className="row">
         <div className="col-sm-6 container">
           <Hero
