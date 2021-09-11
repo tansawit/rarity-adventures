@@ -30,7 +30,7 @@ const Heroes = ({ signer }) => {
       for (let i = 0; i < multiAdv.summonersIndexes.length; i++) {
         //we're converting tokenID into object and adding update field to push a re-render
         temp[multiAdv.summonersIndexes[i]] = {
-          id: tokenID[multiAdv.summonersIndexes[i]],
+          id: tokenID[multiAdv.summonersIndexes[i]].id,
           update: true,
         };
       }
@@ -64,7 +64,7 @@ const Heroes = ({ signer }) => {
         const nextAdvTimestamp = parseInt(nextAdv.toString());
         // if (nextAdvTimestamp) {
         if (nextAdvTimestamp * 1000 < Date.now()) {
-          filtered.push(tokenID[i]);
+          filtered.push(tokenID[i].id || tokenID[i]);
           indexes.push(i);
         }
       }

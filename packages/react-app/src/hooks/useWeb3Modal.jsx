@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 // Enter a valid infura key here to avoid being rate limited
 // You can get a key for free at https://infura.io/register
-const INFURA_ID = "6f1a734656b34119a79367346eb88ebd";
-
+const INFURA_ID = process.env.REACT_APP_INFURA_ID;
 const NETWORK_NAME = "mainnet";
 
 function useWeb3Modal(config = {}) {
@@ -61,7 +60,7 @@ function useWeb3Modal(config = {}) {
     web3Modal.cachedProvider,
   ]);
 
-  return [provider, loadWeb3Modal, logoutOfWeb3Modal];
+  return { provider, loadWeb3Modal, logoutOfWeb3Modal };
 }
 
 export default useWeb3Modal;

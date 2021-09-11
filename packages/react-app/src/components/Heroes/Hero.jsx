@@ -47,6 +47,11 @@ const Hero = ({ tokenID, signer, animation }) => {
           xpRequired: newXpRequired,
         }));
       }
+      const goldClaimable = await getClaimableGold(tokenID.id || tokenID);
+      setGold((prevState) => ({
+        ...prevState,
+        goldClaimable: parseFloat(goldClaimable),
+      }));
     } catch (e) {
       console.log("level up error", e);
     }
@@ -129,12 +134,12 @@ const Hero = ({ tokenID, signer, animation }) => {
               )}
             </p>
             <div className="gold-section row">
-              <p className="text-white-50 col-sm">
+              <p className="text-white-50 col-sm-8">
                 Gold Balance: {gold.goldBalance}
               </p>
               {gold.goldClaimable ? (
                 <button
-                  className="btn btn-light col-sm btn-sm"
+                  className="btn btn-light col-sm-4 btn-sm"
                   onClick={handleClaim}
                   type="button"
                 >
@@ -147,9 +152,7 @@ const Hero = ({ tokenID, signer, animation }) => {
             <button
               className="link-light btn btn-link"
               disabled={
-                element.nextAdventure?.getTime() >= new Date().getTime() ||
-                tokenID.id ||
-                tokenID === null
+                element.nextAdventure?.getTime() >= new Date().getTime()
               }
               onClick={(e) => {
                 e.preventDefault();

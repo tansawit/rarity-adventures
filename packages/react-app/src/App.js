@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
 import { HashRouter, Switch, Route } from "react-router-dom";
+import { RARITY_ADDRESS } from "./components/utils/config.js";
 // import { Web3Provider } from "@ethersproject/providers";
 // import { ethers } from "ethers";
 // import { Contract } from "@ethersproject/contracts";
 import { Body, Header } from "./components/index.jsx";
-import { addresses, abis } from "@project/contracts";
 import Heroes from "./components/Heroes/Heroes";
 import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
@@ -12,7 +12,7 @@ import Footer from "./components/Footer/Footer";
 import HeroCave from "./components/HeroCave/HeroCave";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 import { ContractContext } from "./components/Context/ContractContext.jsx";
-import { setupContracts } from "./components/utils/setupContracts";
+import { setupContracts } from "./hooks/setupContracts";
 
 function App() {
   const [refresh, setRefresh] = useState(false);
@@ -54,13 +54,13 @@ function App() {
     const fetchHeroes = async () => {
       try {
         const response = await fetch(
-          `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${addresses.rarity}&address=${contract?.accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
+          `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${RARITY_ADDRESS}&address=${contract?.accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
         );
         const data = await response.json();
         console.log("data", data);
         const temp = [];
         data.result.forEach((e) => {
-          temp.push(e.tokenID);
+          temp.push({ id: e.tokenID });
         });
         //update tokenID for heroes
         setTokenID(temp);

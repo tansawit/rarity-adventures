@@ -1,7 +1,9 @@
 {
   "name": "@project/react-app",
+  "author": "Hawk Eye",
   "version": "1.0.0",
   "homepage": "./",
+  "license": "MIT",
   "browserslist": {
     "production": [
       ">0.2%",
