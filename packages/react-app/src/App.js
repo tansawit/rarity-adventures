@@ -57,7 +57,6 @@ function App() {
           `https://api.ftmscan.com/api?module=account&action=tokennfttx&contractaddress=${RARITY_ADDRESS}&address=${contract?.accounts}&page=1&offset=100&sort=asc&apikey=${process.env.REACT_APP_ETHERSCAN_API_TOKEN}`
         );
         const data = await response.json();
-        console.log("data", data);
         const temp = [];
         data.result.forEach((e) => {
           temp.push({ id: e.tokenID });

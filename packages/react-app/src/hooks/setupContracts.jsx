@@ -19,7 +19,21 @@ import MULTIADVENTURE_ABI from "../components/constants/abis/multiadventure.json
 import DUNGEON_ABI from "../components/constants/abis/dungeon.json";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
-  const defaultProvider = new Web3Provider(window.ethereum, "any");
+  const defaultProvider = new Web3Provider(window.ethereum, "any", {
+    etherscan: process.env.REACT_APP_ETHERSCAN_API_TOKEN,
+    infura: process.env.REACT_APP_INFURA_ID,
+    // Or if using a project secret:
+    // infura: {
+    //   projectId: YOUR_INFURA_PROJECT_ID,
+    //   projectSecret: YOUR_INFURA_PROJECT_SECRET,
+    // },
+    alchemy: process.env.REACT_APP_ALCHEMY_ID,
+    pocket: process.env.REACT_APP_POCKET_ID,
+    // Or if using an application secret key:
+    // pocket: {
+    //   applicationId: ,
+    //   applicationSecretKey:
+  });
   // const defaultProvider = ethers.getDefaultProvider("homestead", {
   //   etherscan: process.env.REACT_APP_ETHERSCAN_API_TOKEN,
   //   infura: process.env.REACT_APP_INFURA_ID,

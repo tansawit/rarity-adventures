@@ -15,9 +15,53 @@ const useRarity = () => {
     return confirmed;
   }
   const pullHeroesData = async (heroID, signer) => {
-    let data = {};
-    if (heroID) {
-      data = await readRarityData(heroID, signer);
+    let data = {
+      tokenID: null,
+      class: null,
+      level: null,
+      xp: null,
+      xpRequired: null,
+      error: null,
+    };
+    const retryToCompletion = async ({ wait, retries }) => {
+      console.log("heroID & retries", heroID, retries);
+      let result;
+      try {
+        result = await new Promise((resolve, reject) => {
+          setTimeout(async () => {
+            try {
+              if (heroID) {
+                const response = await readRarityData(heroID, signer);
+                // console.log("response in settimeout", response);
+                resolve(response);
+              }
+            } catch (e) {
+              // if (e.message.toString() === "-32603" && retries) {
+              console.log("error message", e.message);
+              reject(e.message);
+              //   return retryToCompletion(wait, --retries);
+              // }
+            }
+          }, wait);
+        });
+        // console.log("result from settimeout", result);
+        return result;
+      } catch (e) {
+        console.log("error message ", e);
+        if (e.toString() === "-32603" && retries) {
+          console.log("repull hero ", heroID, e, retries);
+          return retryToCompletion({ wait: wait, retries: --retries });
+        }
+      }
+    };
+    //end retry to completion func
+    try {
+      // try first pull data with luck. if fail=> call retryToCompletion
+      const response = await readRarityData(heroID, signer);
+      data = response;
+    } catch (e) {
+      console.log("pulling summoners data error", e);
+      data = await retryToCompletion({ wait: 3500, retries: 100 }); //wait = 5s & rerties = 5 times
     }
     return data;
   };
@@ -46,23 +90,37 @@ const useRarity = () => {
     return BigNumber(xpRequired.toString()).dividedBy(1e18).toString();
   };
   async function readRarityData(id) {
-    const summoner = await contract.rarityContract.summoner(id);
-    const xpRequired = await contract.rarityContract.xp_required(
-      summoner[3].toNumber()
-    );
-    const data = {
-      tokenID: id,
-      class: toClassName(summoner[2].toNumber()),
-      level: summoner[3].toString(),
-      xp: convertBigNumber(summoner[0]),
-      xpRequired: BigNumber(xpRequired.toString())
-        .minus(BigNumber(summoner[0].toString()))
-        .dividedBy(1e18)
-        .toString(),
-      nextAdventure: new Date(summoner[1] * 1000),
+    let data = {
+      tokenID: null,
+      class: null,
+      level: null,
+      xp: null,
+      xpRequired: null,
+      error: null,
     };
-    return data;
+    try {
+      const summoner = await contract.rarityContract.summoner(id);
+      const xpRequired = await contract.rarityContract.xp_required(
+        summoner[3].toNumber()
+      );
+      data = {
+        tokenID: id,
+        class: toClassName(summoner[2].toNumber()),
+        level: summoner[3].toString(),
+        xp: convertBigNumber(summoner[0]),
+        xpRequired: BigNumber(xpRequired.toString())
+          .minus(BigNumber(summoner[0].toString()))
+          .dividedBy(1e18)
+          .toString(),
+        nextAdventure: new Date(summoner[1] * 1000),
+      };
+      return data;
+    } catch (e) {
+      throw new Error(e.code);
+      // e.code:-32603
+    }
   }
+
   const approve = async (spender, signer) => {
     try {
       const tx = await contract.rarityContract?.setApprovalForAll(

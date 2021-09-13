@@ -84,21 +84,19 @@ const Hero = ({ tokenID, signer, animation }) => {
     if (tokenID && signer) {
       getData();
     }
+    return () => {};
   }, [tokenID, signer]);
 
   return (
     <div className="row">
       <div className="col-sm-3">
-        <Link
-          className="link-primary"
-          to={`/herocave/${tokenID.id || tokenID}`}
-        >
-          {element.class ? (
+        <Link className="link-primary" to={`/herocave/${element?.tokenID}`}>
+          {element?.class ? (
             <img //gif version if in hero cave
               className="img-thumbnail"
               src={require(`../../media/${
                 animation ? "recruit" : "heroes"
-              }-icon/${element.class?.toLowerCase()}.${
+              }-icon/${element?.class?.toLowerCase()}.${
                 animation ? "gif" : "png"
               }`)}
               alt={element.class}
@@ -111,7 +109,7 @@ const Hero = ({ tokenID, signer, animation }) => {
         </Link>
       </div>
       <div className="col-sm-9">
-        {element.tokenID ? (
+        {element?.tokenID ? (
           <div className="hero-container">
             <p>
               <span className="fw-bolder">{element.class} </span>
