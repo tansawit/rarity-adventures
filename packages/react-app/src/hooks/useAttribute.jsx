@@ -3,32 +3,60 @@ import { ContractContext } from "../components/Context/ContractContext";
 import { calcAPCost } from "../components/constants";
 
 const useAttribute = () => {
-  const { contractAttributes } = useContext(ContractContext);
+  const { contract } = useContext(ContractContext);
 
+  const waitFunc = (delay) => {
+    return new Promise((resolve) => setTimeout(resolve, delay));
+  };
   const getAbilityScores = useCallback(
     async (id) => {
-      try {
-        const attr = await contractAttributes?.ability_scores(id);
-        return {
-          str: attr.strength === 0 ? 8 : attr.strength,
-          dex: attr.dexterity === 0 ? 8 : attr.dexterity,
-          con: attr.constitution === 0 ? 8 : attr.constitution,
-          int: attr.intelligence === 0 ? 8 : attr.intelligence,
-          wis: attr.wisdom === 0 ? 8 : attr.wisdom,
-          cha: attr.charisma === 0 ? 8 : attr.charisma,
+      let data = {
+        //default value is 8
+        strength: 8,
+        dexterity: 8,
+        consitution: 8,
+        intelligence: 8,
+        wisdom: 8,
+        charisma: 8,
+      };
+      if (contract.contractAttributes) {
+        const retryToCompletion = async ({ wait, retries }) => {
+          const onError = (err) => {
+            retries = retries - 1;
+            if (!retries) {
+              throw err;
+            }
+            return waitFunc(wait).then(() =>
+              retryToCompletion({ wait: wait, retries: retries })
+            );
+          };
+          try {
+            const response = await contract.contractAttributes?.ability_scores(
+              id
+            );
+            return response;
+          } catch (e) {
+            return onError(e);
+          }
         };
-      } catch (e) {
-        return {
-          str: 0,
-          dex: 0,
-          con: 0,
-          int: 0,
-          wis: 0,
-          cha: 0,
-        };
+        try {
+          const attr = await contract.contractAttributes?.ability_scores(id);
+          data = {
+            strength: attr.strength === 0 ? 8 : attr.strength,
+            dexterity: attr.dexterity === 0 ? 8 : attr.dexterity,
+            consitution: attr.constitution === 0 ? 8 : attr.constitution,
+            intelligence: attr.intelligence === 0 ? 8 : attr.intelligence,
+            wisdom: attr.wisdom === 0 ? 8 : attr.wisdom,
+            charisma: attr.charisma === 0 ? 8 : attr.charisma,
+          };
+        } catch (e) {
+          const response = await retryToCompletion({ wait: 3500, retries: 5 });
+          data = response;
+        }
       }
+      return data;
     },
-    [contractAttributes]
+    [contract.contractAttributes]
   );
 
   const calcAP = useCallback(
@@ -36,12 +64,14 @@ const useAttribute = () => {
       try {
         const base = 32;
         const lvlAP = parseInt(
-          (await contractAttributes?.abilities_by_level(lvl)).toString(),
+          (
+            await contract.contractAttributes?.abilities_by_level(lvl)
+          ).toString(),
           16
         );
         const lvlAPNum = parseInt(lvlAP.toString());
         const totalAP = base - lvlAPNum;
-        const scores = await contractAttributes?.ability_scores(id);
+        const scores = await contract.contractAttributes?.ability_scores(id);
         let spent = 0;
         spent += calcAPCost(scores.strength === 0 ? 8 : scores.strength);
         spent += calcAPCost(scores.dexterity === 0 ? 8 : scores.dexterity);
@@ -58,30 +88,38 @@ const useAttribute = () => {
         return 0;
       }
     },
-    [contractAttributes]
+    [contract.contractAttributes]
   );
 
   const pointBuy = useCallback(
     async (id, str, dex, con, int, wis, cha) => {
       try {
-        await contractAttributes?.point_buy(id, str, dex, con, int, wis, cha);
+        await contract.contractAttributes?.point_buy(
+          id,
+          str,
+          dex,
+          con,
+          int,
+          wis,
+          cha
+        );
         return;
       } catch (e) {
         return;
       }
     },
-    [contractAttributes]
+    [contract.contractAttributes]
   );
 
   const characterCreated = useCallback(
     async (id) => {
       try {
-        return await contractAttributes?.character_created(id);
+        return await contract.contractAttributes?.character_created(id);
       } catch (e) {
         return false;
       }
     },
-    [contractAttributes]
+    [contract.contractAttributes]
   );
   return { getAbilityScores, calcAP, pointBuy, characterCreated };
 };

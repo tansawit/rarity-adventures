@@ -57,57 +57,6 @@ const useRarity = () => {
       data = await retryToCompletion({ wait: 3500, retries: 10 }); //wait = 3.5s & rerties = 10 times
     }
     return data;
-    // let data = {
-    //   tokenID: null,
-    //   class: null,
-    //   level: null,
-    //   xp: null,
-    //   xpRequired: null,
-    //   error: null,
-    // };
-    // const retryToCompletion = async ({ wait, retries }) => {
-    //   console.log("heroID & retries", heroID, retries);
-    //   let result;
-    //   try {
-    //     result = await new Promise((resolve, reject) => {
-    //       setTimeout(async () => {
-    //         try {
-    //           if (heroID) {
-    //             const response = await readRarityData(heroID, signer);
-    //             // console.log("response in settimeout", response);
-    //             resolve(response);
-    //           }
-    //         } catch (e) {
-    //           // if (e.message.toString() === "-32603" && retries) {
-    //           throw new Error(e);
-    //           // console.log("error message", e.message);
-    //           // reject(e.message);
-    //           //   return retryToCompletion(wait, --retries);
-    //           // }
-    //         }
-    //       }, wait);
-    //     });
-    //     // console.log("result from settimeout", result);
-    //     return result;
-    //   } catch (e) {
-    //     console.log("error message ", typeof e);
-    //     console.log("error message ", e.message);
-    //     if (e.toString() === "-32603" && retries) {
-    //       console.log("repull hero ", heroID, e, retries);
-    //       return retryToCompletion({ wait: wait, retries: --retries });
-    //     }
-    //   }
-    // };
-    // //end retry to completion func
-    // try {
-    //   // try first pull data with luck. if fail=> call retryToCompletion
-    //   const response = await readRarityData(heroID, signer);
-    //   data = response;
-    // } catch (e) {
-    //   console.log("pulling summoners data error", e);
-    //   data = await retryToCompletion({ wait: 3500, retries: 100 }); //wait = 5s & rerties = 5 times
-    // }
-    // return data;
   };
   async function summon(id, signer) {
     const tx = await contract.rarityContract.summon(id);
@@ -128,10 +77,34 @@ const useRarity = () => {
   }
 
   const checkXpRequired = async (currentLevel) => {
-    const xpRequired = await contract.rarityContract.xp_required(
-      parseInt(currentLevel)
-    );
-    return BigNumber(xpRequired.toString()).dividedBy(1e18).toString();
+    const retryToCompletion = async ({ wait, retries }) => {
+      const onError = (err) => {
+        retries = retries - 1;
+        if (!retries) {
+          throw err;
+        }
+        return waitFunc(wait).then(() =>
+          retryToCompletion({ wait: wait, retries: retries })
+        );
+      };
+      try {
+        const response = await contract.rarityContract.xp_required(
+          parseInt(currentLevel)
+        );
+        return response;
+      } catch (e) {
+        return onError(e);
+      }
+    };
+    try {
+      const xpRequired = await contract.rarityContract.xp_required(
+        parseInt(currentLevel)
+      );
+      return BigNumber(xpRequired.toString()).dividedBy(1e18).toString();
+    } catch (e) {
+      const response = await retryToCompletion({ wait: 3500, retries: 10 }); //wait = 3.5s & rerties = 10 times
+      return BigNumber(response.toString()).dividedBy(1e18).toString();
+    }
   };
   async function readRarityData(id) {
     let data = {
@@ -180,10 +153,36 @@ const useRarity = () => {
   };
 
   const allowance = async (owner, spender, signer) => {
+    const retryToCompletion = async ({ wait, retries }) => {
+      const onError = (err) => {
+        retries = retries - 1;
+        if (!retries) {
+          throw err;
+        }
+        return waitFunc(wait).then(() =>
+          retryToCompletion({ wait: wait, retries: retries })
+        );
+      };
+      try {
+        const response = await contract.rarityContract?.isApprovedForAll(
+          owner,
+          spender
+        );
+        return response;
+      } catch (e) {
+        return onError(e);
+      }
+    };
     try {
-      return await contract.rarityContract?.isApprovedForAll(owner, spender);
+      const checkApproval = await contract.rarityContract?.isApprovedForAll(
+        owner,
+        spender
+      );
+      return checkApproval;
     } catch (e) {
-      return false;
+      //if failed at first try, call retry func
+      const response = await retryToCompletion({ wait: 3500, retries: 5 });
+      return response;
     }
   };
   const nextAdventure = async (id, signer) => {
