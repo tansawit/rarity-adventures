@@ -9,8 +9,12 @@ const useGold = () => {
     return BigNumber(claimableAmount.toString()).dividedBy(1e18).toString();
   };
   const getGoldBalance = async (tokenID) => {
-    const goldBalance = await contract.goldContract.balanceOf(tokenID);
-    return BigNumber(goldBalance.toString()).dividedBy(1e18).toString();
+    try {
+      const goldBalance = await contract.goldContract.balanceOf(tokenID);
+      return BigNumber(goldBalance.toString()).dividedBy(1e18).toString();
+    } catch (e) {
+      // console.log("fetch gold balance err", e, tokenID);
+    }
   };
 
   const claimGold = async (tokenID) => {

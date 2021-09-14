@@ -70,19 +70,30 @@ const Hero = ({ tokenID, signer, animation }) => {
   };
 
   useEffect(() => {
-    const getData = async () => {
-      const heroData = await pullHeroesData(tokenID.id || tokenID, signer);
-      const goldBalance = await getGoldBalance(tokenID.id || tokenID);
-      const goldClaimable = await getClaimableGold(tokenID.id || tokenID);
-      setElement(heroData);
-      setGold((prevState) => ({
-        ...prevState,
-        goldBalance: parseFloat(goldBalance),
-        goldClaimable: parseFloat(goldClaimable),
-      }));
+    const fetHeroData = async () => {
+      try {
+        const heroData = await pullHeroesData(tokenID.id || tokenID, signer);
+        setElement(heroData);
+      } catch (e) {
+        // console.log("fetch hero data error", e);
+      }
+    };
+    const fetchGold = async () => {
+      try {
+        const goldBalance = await getGoldBalance(tokenID.id || tokenID);
+        const goldClaimable = await getClaimableGold(tokenID.id || tokenID);
+        setGold((prevState) => ({
+          ...prevState,
+          goldBalance: parseFloat(goldBalance),
+          goldClaimable: parseFloat(goldClaimable),
+        }));
+      } catch (e) {
+        // console.log("fetch gold data error", e);
+      }
     };
     if (tokenID && signer) {
-      getData();
+      fetHeroData();
+      fetchGold();
     }
     return () => {};
   }, [tokenID, signer]);
@@ -102,6 +113,7 @@ const Hero = ({ tokenID, signer, animation }) => {
               alt={element.class}
             />
           ) : (
+            //avatar if in main page
             <div className="spinner-border text-info" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
