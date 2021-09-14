@@ -86,7 +86,10 @@ const Heroes = ({ signer }) => {
   return (
     <div className="heroes-section container py-3">
       <div className="container-fluid d-flex justify-content-between">
-        <p className="h1 text-uppercase fw-bold text-white"> Heroes List</p>
+        <p className="h1 text-uppercase fw-bold text-white">
+          {" "}
+          Heroes List <span className="h6 fw-italic text-white-50">({tokenID.length})</span>
+        </p>
         {multiAdv.available ? (
           multiAdv.approved ? (
             <button
