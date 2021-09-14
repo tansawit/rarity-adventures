@@ -1,16 +1,89 @@
-import BigNumber from "bignumber.js";
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import { ContractContext } from "../components/Context/ContractContext";
-import { addresses, abis } from "@project/contracts";
+import { calcAPCost } from "../components/constants";
 
 const useAttribute = () => {
-  const { contract } = useContext(ContractContext);
+  const { contractAttributes } = useContext(ContractContext);
 
-  const getAbilityScores = async (id, signer) => {
-    const data = await contract.contractAttributes.ability_scores(id);
-    console.log(data);
-  };
-  return getAbilityScores;
+  const getAbilityScores = useCallback(
+    async (id) => {
+      try {
+        const attr = await contractAttributes?.ability_scores(id);
+        return {
+          str: attr.strength === 0 ? 8 : attr.strength,
+          dex: attr.dexterity === 0 ? 8 : attr.dexterity,
+          con: attr.constitution === 0 ? 8 : attr.constitution,
+          int: attr.intelligence === 0 ? 8 : attr.intelligence,
+          wis: attr.wisdom === 0 ? 8 : attr.wisdom,
+          cha: attr.charisma === 0 ? 8 : attr.charisma,
+        };
+      } catch (e) {
+        return {
+          str: 0,
+          dex: 0,
+          con: 0,
+          int: 0,
+          wis: 0,
+          cha: 0,
+        };
+      }
+    },
+    [contractAttributes]
+  );
+
+  const calcAP = useCallback(
+    async (id, lvl) => {
+      try {
+        const base = 32;
+        const lvlAP = parseInt(
+          (await contractAttributes?.abilities_by_level(lvl)).toString(),
+          16
+        );
+        const lvlAPNum = parseInt(lvlAP.toString());
+        const totalAP = base - lvlAPNum;
+        const scores = await contractAttributes?.ability_scores(id);
+        let spent = 0;
+        spent += calcAPCost(scores.strength === 0 ? 8 : scores.strength);
+        spent += calcAPCost(scores.dexterity === 0 ? 8 : scores.dexterity);
+        spent += calcAPCost(
+          scores.constitution === 0 ? 8 : scores.constitution
+        );
+        spent += calcAPCost(
+          scores.intelligence === 0 ? 8 : scores.intelligence
+        );
+        spent += calcAPCost(scores.wisdom === 0 ? 8 : scores.wisdom);
+        spent += calcAPCost(scores.charisma === 0 ? 8 : scores.charisma);
+        return totalAP - spent;
+      } catch (e) {
+        return 0;
+      }
+    },
+    [contractAttributes]
+  );
+
+  const pointBuy = useCallback(
+    async (id, str, dex, con, int, wis, cha) => {
+      try {
+        await contractAttributes?.point_buy(id, str, dex, con, int, wis, cha);
+        return;
+      } catch (e) {
+        return;
+      }
+    },
+    [contractAttributes]
+  );
+
+  const characterCreated = useCallback(
+    async (id) => {
+      try {
+        return await contractAttributes?.character_created(id);
+      } catch (e) {
+        return false;
+      }
+    },
+    [contractAttributes]
+  );
+  return { getAbilityScores, calcAP, pointBuy, characterCreated };
 };
 
 export default useAttribute;

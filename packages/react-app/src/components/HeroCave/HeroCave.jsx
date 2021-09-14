@@ -77,7 +77,7 @@ const HeroCave = ({ signer }) => {
             role="tabpanel"
             aria-labelledby="attribute-tab"
           >
-            <Attribute></Attribute>
+            <Attribute heroID={heroID}></Attribute>
           </div>
           <div
             className="tab-pane fade"

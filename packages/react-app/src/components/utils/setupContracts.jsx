@@ -10,13 +10,13 @@ import {
   MULTIADVENTURE_CONTRACT,
   GOLD_CONTRACTS,
   DUNGEONS,
-} from "../components/utils/config";
+} from "./config";
 
-import RARITY_ABI from "../components/constants/abis/rarity.json";
-import GOLD_ABI from "../components/constants/abis/gold.json";
-import ATTRIBUTES_ABI from "../components/constants/abis/attributes.json";
-import MULTIADVENTURE_ABI from "../components/constants/abis/multiadventure.json";
-import DUNGEON_ABI from "../components/constants/abis/dungeon.json";
+import RARITY_ABI from "../constants/abis/rarity.json";
+import GOLD_ABI from "../constants/abis/gold.json";
+import ATTRIBUTES_ABI from "../constants/abis/attributes.json";
+import MULTIADVENTURE_ABI from "../constants/abis/multiadventure.json";
+import DUNGEON_ABI from "../constants/abis/dungeon.json";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
   const defaultProvider = new Web3Provider(window.ethereum, "any", {

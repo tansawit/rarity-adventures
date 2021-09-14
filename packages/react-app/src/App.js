@@ -12,7 +12,7 @@ import Footer from "./components/Footer/Footer";
 import HeroCave from "./components/HeroCave/HeroCave";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 import { ContractContext } from "./components/Context/ContractContext.jsx";
-import { setupContracts } from "./hooks/setupContracts";
+import { setupContracts } from "./components/utils/setupContracts";
 
 function App() {
   const [refresh, setRefresh] = useState(false);
