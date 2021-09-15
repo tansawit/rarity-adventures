@@ -5,21 +5,15 @@ import Hero from "../Heroes/Hero";
 import Attribute from "./Attribute";
 import useRarity from "../../hooks/useRarity";
 
-const HeroCave = ({ signer }) => {
+const HeroCave = () => {
   const router = useRouter();
-  const { embarkAdventure } = useRarity();
-  const [heroID, setHeroID] = useState(router.query.tokenID);
+  const [heroID] = useState(router.query.tokenID);
   return (
     <div className="container py-3">
       <p className="h1 text-uppercase fw-bold text-white py-3"> Hero Cave</p>
       <div className="row">
         <div className="col-sm-6 container">
-          <Hero
-            tokenID={heroID}
-            embarkAdventure={embarkAdventure}
-            signer={signer}
-            animation={true}
-          ></Hero>
+          <Hero tokenID={heroID} animation={true}></Hero>
         </div>
         <div className="col-sm-6 container">
           <p>Inventory</p>

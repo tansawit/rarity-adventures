@@ -10,6 +10,7 @@ import Tavern from "./components/Tavern/Tavern";
 import NavBar from "./components/NavBar/NavBar";
 import Footer from "./components/Footer/Footer";
 import HeroCave from "./components/HeroCave/HeroCave";
+import GoddessTower from "./components/GoddessTower/GoddessTower";
 import { CharacterContext } from "./components/Context/CharacterContext.jsx";
 import { ContractContext } from "./components/Context/ContractContext.jsx";
 import { setupContracts } from "./components/utils/setupContracts";
@@ -83,11 +84,14 @@ function App() {
         <Body>
           <Switch>
             <Route exact path="/">
-              <Heroes signer={contract?.signer}></Heroes>
-              <Tavern signer={contract?.signer}></Tavern>
+              <Heroes></Heroes>
+              <Tavern></Tavern>
             </Route>
             <Route path="/herocave/:tokenID">
-              <HeroCave signer={contract?.signer}></HeroCave>
+              <HeroCave></HeroCave>
+            </Route>
+            <Route path="/goddesstower">
+              <GoddessTower></GoddessTower>
             </Route>
           </Switch>
         </Body>

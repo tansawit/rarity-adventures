@@ -5,10 +5,10 @@ import useRarity from "../../hooks/useRarity";
 import { MULTIADVENTURE_CONTRACT } from "../utils/config";
 import Hero from "./Hero";
 
-const Heroes = ({ signer }) => {
+const Heroes = () => {
   const { tokenID, setTokenID } = useContext(CharacterContext);
   const { contract } = useContext(ContractContext);
-  const { approve, allowance, nextAdventure } = useRarity();
+  const { approve, allowance, nextAdventure, multiAdventure } = useRarity();
   const [multiAdv, setMultiAdv] = useState({
     approved: false,
     available: false,
@@ -18,13 +18,7 @@ const Heroes = ({ signer }) => {
 
   const handleAdventureAll = async (e) => {
     e.preventDefault();
-    const txhash = await contract.contract_multiAdventure.adventureTime(
-      multiAdv.summoners
-    );
-    // wait for tx to be confirmed
-    const confirm = await txhash.wait();
-    // start updating tokenID to re-render all tokenID  in the list
-    //so we could update the nextAdventure status
+    const confirm = await multiAdventure(multiAdv.summoners);
     if (confirm) {
       const temp = [...tokenID];
       for (let i = 0; i < multiAdv.summonersIndexes.length; i++) {
@@ -41,25 +35,18 @@ const Heroes = ({ signer }) => {
   };
   const handleApprove = async (e) => {
     e.preventDefault();
-    const txhash = await approve(MULTIADVENTURE_CONTRACT, signer);
-    // wait for tx to be confirmed
-    const confirm = await txhash.wait();
-    // update approval status
+    const confirm = await approve(MULTIADVENTURE_CONTRACT);
     if (confirm) {
       setMultiAdv({ ...multiAdv, approved: true });
     }
   };
   const filter = useCallback(async () => {
     if (!contract?.accounts) return;
-    const allowed = await allowance(
-      contract.accounts,
-      MULTIADVENTURE_CONTRACT,
-      signer
-    );
+    const allowed = await allowance(contract.accounts, MULTIADVENTURE_CONTRACT);
     const filtered = [];
     const indexes = [];
     for (let i = 0; i < tokenID.length; i++) {
-      const nextAdv = await nextAdventure(tokenID[i].id || tokenID[i], signer);
+      const nextAdv = await nextAdventure(tokenID[i].id);
       if (nextAdv !== "error") {
         const nextAdvTimestamp = parseInt(nextAdv.toString());
         // if (nextAdvTimestamp) {
@@ -76,19 +63,21 @@ const Heroes = ({ signer }) => {
       summoners: [...filtered],
       summonersIndexes: [...indexes],
     });
-  }, [tokenID, contract?.accounts]);
+  }, [tokenID, contract.accounts]);
 
   useEffect(() => {
     if (!contract?.accounts) return;
     filter();
-  }, [filter, contract?.accounts, tokenID]);
+    return () => {};
+  }, [filter, contract.accounts, tokenID]);
 
   return (
     <div className="heroes-section container py-3">
       <div className="container-fluid d-flex justify-content-between">
         <p className="h1 text-uppercase fw-bold text-white">
           {" "}
-          Heroes List <span className="h6 fw-italic text-white-50">({tokenID.length})</span>
+          Heroes List{" "}
+          <span className="h6 fw-italic text-white-50">({tokenID.length})</span>
         </p>
         {multiAdv.available ? (
           multiAdv.approved ? (
@@ -119,7 +108,7 @@ const Heroes = ({ signer }) => {
           tokenID.map((element, index) => {
             return (
               <div className="col-sm-4 my-3" key={index}>
-                <Hero tokenID={element} signer={signer}></Hero>
+                <Hero tokenID={element}></Hero>
               </div>
             );
           })}

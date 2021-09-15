@@ -8,7 +8,7 @@ const useRarity = () => {
   function convertBigNumber(number) {
     return BigNumber(number.toString()).dividedBy(1e18).toString();
   }
-  async function embarkAdventure(id, signer) {
+  async function embarkAdventure(id) {
     const tx = await contract.rarityContract.adventure(id);
     const confirmed = await tx.wait();
     // console.log("check tx", confirmed);
@@ -58,20 +58,20 @@ const useRarity = () => {
     }
     return data;
   };
-  async function summon(id, signer) {
+  async function summon(id) {
     const tx = await contract.rarityContract.summon(id);
     const confirmed = await tx.wait();
     const final = BigNumber(confirmed.events[0].args[2].toString()).toString();
     return final;
   }
 
-  async function levelUp(id, signer) {
+  async function levelUp(id) {
     const tx = await contract.rarityContract.level_up(id);
     const confirmed = await tx.wait();
     return confirmed;
   }
 
-  async function characterCreated(id, signer) {
+  async function characterCreated(id) {
     const data = await contract.rarityContract.character_created(id);
     return data;
   }
@@ -138,7 +138,7 @@ const useRarity = () => {
     }
   }
 
-  const approve = async (spender, signer) => {
+  const approve = async (spender) => {
     try {
       const tx = await contract.rarityContract?.setApprovalForAll(
         spender,
@@ -152,7 +152,7 @@ const useRarity = () => {
     }
   };
 
-  const allowance = async (owner, spender, signer) => {
+  const allowance = async (owner, spender) => {
     const retryToCompletion = async ({ wait, retries }) => {
       const onError = (err) => {
         retries = retries - 1;
@@ -185,13 +185,27 @@ const useRarity = () => {
       return response;
     }
   };
-  const nextAdventure = async (id, signer) => {
+  const nextAdventure = async (id) => {
     try {
       // const nextAdvTime = await contract.rarityContract?.adventurers_log(id);
       // return BigNumber(nextAdvTime.toString());
       return await contract.rarityContract?.adventurers_log(id);
     } catch (e) {
-      return "error";
+      return "adventure error";
+    }
+  };
+  const multiAdventure = async (idArray) => {
+    try {
+      // const nextAdvTime = await contract.rarityContract?.adventurers_log(id);
+      // return BigNumber(nextAdvTime.toString());
+      const txhash = await contract.contract_multiAdventure.adventureTime(
+        idArray
+      );
+      // wait for tx to be confirmed
+      const confirm = await txhash.wait();
+      return confirm;
+    } catch (e) {
+      return "multi adv error";
     }
   };
 
@@ -208,6 +222,7 @@ const useRarity = () => {
     allowance,
     nextAdventure,
     checkXpRequired,
+    multiAdventure,
   };
 };
 export default useRarity;

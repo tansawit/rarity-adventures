@@ -11,9 +11,25 @@ const NavBar = () => {
       <nav className="navbar navbar-light bg-gray justify-content-between">
         <div className="container-fluid">
           <Link to="/">
-            <span className="navbar-brand text-uppercase mb-0 h1 fw-bold text-white-50">
-              Rarity
-            </span>
+            <div className="navbar-brand">
+              <span className="navbar-brand text-uppercase mb-0 h1 fw-bold text-white-50">
+                Rarity
+              </span>
+            </div>
+          </Link>
+          <Link to="/goddesstower">
+            <div className="navbar-brand">
+              <img
+                className="img-thumbnail bg-transparent border-0"
+                src={require("../../media/goddess.png")}
+                alt="goddess"
+                width="60"
+                height="60"
+              />
+              <span className="navbar-brand text-uppercase mb-0 h1 fw-bold text-white-50">
+                The Goddess Tower
+              </span>
+            </div>
           </Link>
           <Button
             className="btn btn-primary"

@@ -2,11 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import useRarity from "../../hooks/useRarity";
 import useGold from "../../hooks/useGold";
 import { Link } from "react-router-dom";
+import { ContractContext } from "../Context/ContractContext.jsx";
 
 // import { CharacterContext } from "../Context/CharacterContext";
 // import { ContractContext } from "../Context/ContractContext";
 
-const Hero = ({ tokenID, signer, animation }) => {
+const Hero = ({ tokenID, animation }) => {
+  const { contract } = useContext(ContractContext);
   const [element, setElement] = useState({
     tokenID: null,
     class: null,
@@ -25,7 +27,7 @@ const Hero = ({ tokenID, signer, animation }) => {
   // const { heroes, setHeroes } = useContext(CharacterContext);
   const handleAdventure = async () => {
     // need to use tokenID.id || tokenID in case we use adv all and push for a re-render
-    const response = await embarkAdventure(tokenID.id || tokenID, signer);
+    const response = await embarkAdventure(tokenID.id || tokenID);
     if (response.confirmations) {
       //got confirmed
       const today = new Date();
@@ -37,7 +39,7 @@ const Hero = ({ tokenID, signer, animation }) => {
   const handleLevelUp = async (e) => {
     e.preventDefault();
     try {
-      const response = await levelUp(element.tokenID, signer);
+      const response = await levelUp(element.tokenID);
       const newXpRequired = await checkXpRequired(parseInt(element.level) + 1);
       if (response) {
         setElement((prevState) => ({
@@ -72,7 +74,7 @@ const Hero = ({ tokenID, signer, animation }) => {
   useEffect(() => {
     const fetHeroData = async () => {
       try {
-        const heroData = await pullHeroesData(tokenID.id || tokenID, signer);
+        const heroData = await pullHeroesData(tokenID.id || tokenID);
         setElement(heroData);
       } catch (e) {
         // console.log("fetch hero data error", e);
@@ -91,12 +93,12 @@ const Hero = ({ tokenID, signer, animation }) => {
         // console.log("fetch gold data error", e);
       }
     };
-    if (tokenID && signer) {
+    if (tokenID.id || tokenID) {
       fetHeroData();
       fetchGold();
     }
     return () => {};
-  }, [tokenID, signer]);
+  }, [tokenID, contract.accounts]);
 
   return (
     <div className="row">
@@ -104,7 +106,7 @@ const Hero = ({ tokenID, signer, animation }) => {
         <Link className="link-primary" to={`/herocave/${element?.tokenID}`}>
           {element?.class ? (
             <img //gif version if in hero cave
-              className="img-thumbnail bg-transparent"
+              className="img-thumbnail bg-transparent border-0"
               src={require(`../../media/${
                 animation ? "recruit" : "heroes"
               }-icon/${element?.class?.toLowerCase()}.${
