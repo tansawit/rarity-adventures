@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import useAttribute from "../../hooks/useAttribute";
+import { calcAPCost } from "../constants";
+
 // import { ContractContext } from "../Context/ContractContext";
 
 const Attribute = ({ heroID }) => {
   const [stats, setStats] = useState({
+    strength: -8,
+    dexterity: -8,
+    constitution: -8,
+    intelligence: -8,
+    wisdom: -8,
+    charisma: -8,
+  });
+  const [tempStats, setTempStats] = useState({
     strength: 8,
     dexterity: 8,
     constitution: 8,
@@ -11,28 +21,81 @@ const Attribute = ({ heroID }) => {
     wisdom: 8,
     charisma: 8,
   });
-  const [tempStats, setTempStats] = useState({
-    strength: 0,
-    dexterity: 0,
-    constitution: 0,
-    intelligence: 0,
-    wisdom: 0,
-    charisma: 0,
-  });
   const [availableAP, setAvailableAP] = useState(0);
-
+  const [tempAP, setTempAP] = useState(0);
+  const [update, setUpdate] = useState(false);
   const { getAbilityScores, calcAP, pointBuy } = useAttribute();
+
+  const calcTempAP = (stat, add) => {
+    //cos usestate work as asyn, we need this temp stats to work on AP cal
+    let temp;
+    if (add) {
+      temp = { ...tempStats, [stat]: tempStats[stat] + 1 };
+    } else {
+      temp = { ...tempStats, [stat]: tempStats[stat] - 1 };
+    }
+    // const temp = { ...tempStats };
+    let ap = availableAP;
+    ap -= calcAPCost(temp["strength"]);
+    ap -= calcAPCost(temp["dexterity"]);
+    ap -= calcAPCost(temp["constitution"]);
+    ap -= calcAPCost(temp["intelligence"]);
+    ap -= calcAPCost(temp["wisdom"]);
+    ap -= calcAPCost(temp["charisma"]);
+    setTempAP(ap);
+  };
+  const calcTempAPWithState = (stat) => {
+    const temp = { ...tempStats, [stat]: tempStats[stat] + 1 };
+    let ap = availableAP;
+    ap -= calcAPCost(temp["strength"]);
+    ap -= calcAPCost(temp["dexterity"]);
+    ap -= calcAPCost(temp["constitution"]);
+    ap -= calcAPCost(temp["intelligence"]);
+    ap -= calcAPCost(temp["wisdom"]);
+    ap -= calcAPCost(temp["charisma"]);
+    return ap;
+  };
   const handlePlus = (stat) => {
-    setTempStats((prevState) => ({
-      ...prevState,
-      [stat]: ++prevState[stat],
-    }));
+    if (calcTempAPWithState(stat) >= 0) {
+      setTempStats((prevState) => ({
+        ...prevState,
+        [stat]: tempStats[stat] + 1, //CANT USE ++ HERE, IT'S MUTUAL
+      }));
+      calcTempAP(stat, true);
+    }
   };
   const handleMinus = (stat) => {
-    setTempStats((prevState) => ({
-      ...prevState,
-      [stat]: --prevState[stat],
-    }));
+    if (stats[stat] <= tempStats[stat] - 1) {
+      setTempStats((prevState) => ({
+        ...prevState,
+        [stat]: prevState[stat] - 1,
+      }));
+      calcTempAP(stat, false);
+    }
+  };
+  const handleReset = (e) => {
+    e.preventDefault();
+    setTempAP(32);
+    setTempStats(stats);
+  };
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setUpdate(true);
+    if (tempAP === 0) {
+      const response = await pointBuy(
+        heroID,
+        tempStats["strength"],
+        tempStats["dexterity"],
+        tempStats["constitution"],
+        tempStats["intelligence"],
+        tempStats["wisdom"],
+        tempStats["charisma"]
+      );
+      if (response) {
+        setStats(tempStats); //update current stats as temp stats
+      }
+    }
+    setUpdate(false);
   };
 
   const fetchScores = useCallback(async () => {
@@ -40,7 +103,9 @@ const Attribute = ({ heroID }) => {
       const scores = await getAbilityScores(heroID);
       const AP = await calcAP(heroID, 2);
       setStats(scores);
+      setTempStats(scores);
       setAvailableAP(AP);
+      setTempAP(AP);
     } catch (e) {}
   }, [getAbilityScores, calcAP, heroID]);
 
@@ -69,7 +134,7 @@ const Attribute = ({ heroID }) => {
           </div>
           <div className="row bg-primary bg-gradient rounded">
             <p className="col-sm fw-bold">Available Points</p>
-            <p className="col-sm text-end">{availableAP}</p>
+            <p className="col-sm text-end">{tempAP}</p>
           </div>
           <div className="pt-3">
             {Object.keys(stats).map((e, index) => {
@@ -83,7 +148,7 @@ const Attribute = ({ heroID }) => {
                         event.preventDefault();
                         handleMinus(e);
                       }}
-                      disabled={tempStats[e] === 0 ? true : false}
+                      disabled={tempStats[e] === stats[e] ? true : false}
                     >
                       <i className="bi bi-dash-circle fs-5"></i>
                     </button>
@@ -93,18 +158,49 @@ const Attribute = ({ heroID }) => {
                         event.preventDefault();
                         handlePlus(e);
                       }}
+                      disabled={tempAP === 0 ? true : false}
                     >
                       <i className="bi bi-plus-circle fs-5"></i>
                     </button>
                   </div>
-                  <p className="col-sm-3 text-end">{stats[e] + tempStats[e]}</p>
+                  <p className="col-sm-3 text-end">{tempStats[e]}</p>
                 </div>
               );
             })}
           </div>
-          <div className="row attribute-note border-top border-light">
+          <div className="row attribute-note border-top border-light pt-2">
+            <div className="container btn-container d-flex justify-content-evenly">
+              {update ? (
+                <button className="btn btn-secondary" type="button" disabled>
+                  <span
+                    className="spinner-border"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  <span className="visually-hidden">Loading...</span>
+                </button>
+              ) : (
+                <button className="btn-primary btn-lg" onClick={handleReset}>
+                  Reset
+                </button>
+              )}
+              {update ? (
+                <button className="btn btn-secondary" type="button" disabled>
+                  <span
+                    className="spinner-border"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  <span className="visually-hidden">Loading...</span>
+                </button>
+              ) : (
+                <button className="btn-primary btn-lg" onClick={handleUpdate}>
+                  Update
+                </button>
+              )}
+            </div>
             <p className="fw-italic text-white-50 pt-2 text-center">
-              {availableAP === 0
+              {tempAP === 0
                 ? "A hero receives only 1 additional point every 4 levels so be careful with your build."
                 : "You need to spend all 32 starting points to begin the raiding tower part"}
             </p>

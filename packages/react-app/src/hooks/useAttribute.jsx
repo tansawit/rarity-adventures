@@ -94,7 +94,7 @@ const useAttribute = () => {
   const pointBuy = useCallback(
     async (id, str, dex, con, int, wis, cha) => {
       try {
-        await contract.contractAttributes?.point_buy(
+        const tx = await contract.contractAttributes?.point_buy(
           id,
           str,
           dex,
@@ -103,7 +103,8 @@ const useAttribute = () => {
           wis,
           cha
         );
-        return;
+        const confirmed = await tx.wait();
+        return confirmed;
       } catch (e) {
         return;
       }

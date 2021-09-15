@@ -9,6 +9,7 @@ const Heroes = () => {
   const { tokenID, setTokenID } = useContext(CharacterContext);
   const { contract } = useContext(ContractContext);
   const { approve, allowance, nextAdventure, multiAdventure } = useRarity();
+  const { updating, setUpdating } = useState(false);
   const [multiAdv, setMultiAdv] = useState({
     approved: false,
     available: false,
@@ -18,6 +19,7 @@ const Heroes = () => {
 
   const handleAdventureAll = async (e) => {
     e.preventDefault();
+    setUpdating(true); //loading button
     const confirm = await multiAdventure(multiAdv.summoners);
     if (confirm) {
       const temp = [...tokenID];
@@ -31,14 +33,16 @@ const Heroes = () => {
       setTokenID(temp);
       setMultiAdv({ ...multiAdv, available: false });
     }
-    return confirm;
+    setUpdating(false);
   };
   const handleApprove = async (e) => {
     e.preventDefault();
+    setUpdating(true);
     const confirm = await approve(MULTIADVENTURE_CONTRACT);
     if (confirm) {
       setMultiAdv({ ...multiAdv, approved: true });
     }
+    setUpdating(false);
   };
   const filter = useCallback(async () => {
     if (!contract?.accounts) return;
@@ -79,7 +83,13 @@ const Heroes = () => {
           Heroes List{" "}
           <span className="h6 fw-italic text-white-50">({tokenID.length})</span>
         </p>
-        {multiAdv.available ? (
+        {updating ? ( //loading button
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        ) : multiAdv.available ? (
           multiAdv.approved ? (
             <button
               className="btn btn-success"
