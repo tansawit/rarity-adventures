@@ -14,7 +14,7 @@ const useAttribute = () => {
         //default value is 8
         strength: 8,
         dexterity: 8,
-        consitution: 8,
+        constitution: 8,
         intelligence: 8,
         wisdom: 8,
         charisma: 8,
@@ -44,7 +44,7 @@ const useAttribute = () => {
           data = {
             strength: attr.strength === 0 ? 8 : attr.strength,
             dexterity: attr.dexterity === 0 ? 8 : attr.dexterity,
-            consitution: attr.constitution === 0 ? 8 : attr.constitution,
+            constitution: attr.constitution === 0 ? 8 : attr.constitution,
             intelligence: attr.intelligence === 0 ? 8 : attr.intelligence,
             wisdom: attr.wisdom === 0 ? 8 : attr.wisdom,
             charisma: attr.charisma === 0 ? 8 : attr.charisma,

@@ -6,7 +6,7 @@ const Attribute = ({ heroID }) => {
   const [stats, setStats] = useState({
     strength: 8,
     dexterity: 8,
-    consitution: 8,
+    constitution: 8,
     intelligence: 8,
     wisdom: 8,
     charisma: 8,
@@ -14,7 +14,7 @@ const Attribute = ({ heroID }) => {
   const [tempStats, setTempStats] = useState({
     strength: 0,
     dexterity: 0,
-    consitution: 0,
+    constitution: 0,
     intelligence: 0,
     wisdom: 0,
     charisma: 0,
@@ -96,8 +96,9 @@ const Attribute = ({ heroID }) => {
           </div>
           <div className="row attribute-note border-top border-light">
             <p className="fw-italic text-white-50 pt-2 text-center">
-              A hero receives only 1 additional point every 4 levels so
-              becareful with your build.
+              {availableAP === 0
+                ? "A hero receives only 1 additional point every 4 levels so be careful with your build."
+                : "You need to spend all 32 starting points to begin the raiding tower part"}
             </p>
           </div>
         </div>

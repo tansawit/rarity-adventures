@@ -6,7 +6,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 // Enter a valid infura key here to avoid being rate limited
 // You can get a key for free at https://infura.io/register
 const INFURA_ID = process.env.REACT_APP_INFURA_ID;
-const NETWORK_NAME = "mainnet";
+const NETWORK_NAME = "fantom";
 
 function useWeb3Modal(config = {}) {
   const [provider, setProvider] = useState();
@@ -31,6 +31,24 @@ function useWeb3Modal(config = {}) {
       },
     },
   });
+
+  // refresh page when accounts changed
+  const loggingEnabled = false;
+  useEffect(() => {
+    window.addEventListener("load", () => {
+      // detect Metamask account change
+      window.ethereum.on("accountsChanged", (accounts) => {
+        if (loggingEnabled) console.log("Account changed:", accounts);
+        window.location.reload();
+      });
+    });
+
+    return () => {
+      window.removeEventListener("load", () =>
+        console.log("Removing load listener")
+      );
+    };
+  }, [provider]);
 
   // Open wallet selection modal.
   const loadWeb3Modal = useCallback(async () => {
