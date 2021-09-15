@@ -8,13 +8,13 @@ const Tavern = ({ signer }) => {
         <div className="container-fluid d-flex justify-content-between">
           {/* <p className="h1 text-uppercase fw-bold text-white">The tavern</p> */}
           <button
-            className="btn btn-outline-light btn-lg"
+            className="btn btn-outline-light btn-lg border-warning"
             type="button"
             data-bs-toggle="modal"
             data-bs-target="#collapseTavern"
             aria-expanded="false"
             aria-controls="collapseTavern"
-            style={{ position: "fixed", top: "50%", right: "10%" }}
+            style={{ position: "fixed", top: "50%", right: "7%" }}
           >
             <i className="bi bi-shop-window"></i>
           </button>

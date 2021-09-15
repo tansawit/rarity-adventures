@@ -93,6 +93,7 @@ const Attribute = ({ heroID }) => {
       );
       if (response) {
         setStats(tempStats); //update current stats as temp stats
+        setAvailableAP(0); //set AP = 0
       }
     }
     setUpdate(false);
@@ -169,36 +170,40 @@ const Attribute = ({ heroID }) => {
             })}
           </div>
           <div className="row attribute-note border-top border-light pt-2">
-            <div className="container btn-container d-flex justify-content-evenly">
-              {update ? (
-                <button className="btn btn-secondary" type="button" disabled>
-                  <span
-                    className="spinner-border"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  <span className="visually-hidden">Loading...</span>
-                </button>
-              ) : (
-                <button className="btn-primary btn-lg" onClick={handleReset}>
-                  Reset
-                </button>
-              )}
-              {update ? (
-                <button className="btn btn-secondary" type="button" disabled>
-                  <span
-                    className="spinner-border"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  <span className="visually-hidden">Loading...</span>
-                </button>
-              ) : (
-                <button className="btn-primary btn-lg" onClick={handleUpdate}>
-                  Update
-                </button>
-              )}
-            </div>
+            {availableAP !== 0 ? (
+              <div className="container btn-container d-flex justify-content-evenly">
+                {update ? (
+                  <button className="btn btn-secondary" type="button" disabled>
+                    <span
+                      className="spinner-border"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <span className="visually-hidden">Loading...</span>
+                  </button>
+                ) : (
+                  <button className="btn-primary btn-lg" onClick={handleReset}>
+                    Reset
+                  </button>
+                )}
+                {update ? (
+                  <button className="btn btn-secondary" type="button" disabled>
+                    <span
+                      className="spinner-border"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <span className="visually-hidden">Loading...</span>
+                  </button>
+                ) : (
+                  <button className="btn-primary btn-lg" onClick={handleUpdate}>
+                    Update
+                  </button>
+                )}
+              </div>
+            ) : (
+              ""
+            )}
             <p className="fw-italic text-white-50 pt-2 text-center">
               {tempAP === 0
                 ? "A hero receives only 1 additional point every 4 levels so be careful with your build."

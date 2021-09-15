@@ -38,7 +38,7 @@ const Footer = () => {
         <p className="text-center text-white-50">
           Tip me here{" "}
           <a
-            href="0x8951555e012D4A0BfCf7eFd3F9908D97a55E7F91"
+            href="https://ftmscan.com/address/0x8951555e012D4A0BfCf7eFd3F9908D97a55E7F91"
             target="_blank"
             rel="noreferrer noopener"
           >
