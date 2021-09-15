@@ -33,12 +33,11 @@ function useWeb3Modal(config = {}) {
   });
 
   // refresh page when accounts changed
-  const loggingEnabled = false;
+  // const loggingEnabled = false;
   useEffect(() => {
     window.addEventListener("load", () => {
       // detect Metamask account change
       window.ethereum.on("accountsChanged", (accounts) => {
-        if (loggingEnabled) console.log("Account changed:", accounts);
         window.location.reload();
       });
     });

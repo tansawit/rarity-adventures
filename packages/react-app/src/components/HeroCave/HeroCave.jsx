@@ -77,7 +77,7 @@ const HeroCave = ({ signer }) => {
             role="tabpanel"
             aria-labelledby="attribute-tab"
           >
-            <Attribute heroID={heroID} ></Attribute>
+            <Attribute heroID={heroID}></Attribute>
           </div>
           <div
             className="tab-pane fade"
@@ -85,7 +85,7 @@ const HeroCave = ({ signer }) => {
             role="tabpanel"
             aria-labelledby="skill-tab"
           >
-            Skill tab here
+            Coming Soon
           </div>
           <div
             className="tab-pane fade"
@@ -93,7 +93,7 @@ const HeroCave = ({ signer }) => {
             role="tabpanel"
             aria-labelledby="crafting-tab"
           >
-            Crafting
+            Coming Soon
           </div>
         </div>
       </div>

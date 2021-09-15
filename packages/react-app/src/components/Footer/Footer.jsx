@@ -36,11 +36,14 @@ const Footer = () => {
           for Gifs
         </p>
         <p className="text-center text-white-50">
-          Tip me here
-          <span className="link-primary">
-            {" "}
-            0xf438A14edD1757411D4a4c9f45b4D1CBdE73EAba
-          </span>
+          Tip me here{" "}
+          <a
+            href="0x8951555e012D4A0BfCf7eFd3F9908D97a55E7F91"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            0x8951555e012D4A0BfCf7eFd3F9908D97a55E7F91
+          </a>{" "}
         </p>
       </div>
     </footer>

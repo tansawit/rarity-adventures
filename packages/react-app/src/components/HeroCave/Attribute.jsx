@@ -53,7 +53,15 @@ const Attribute = ({ heroID }) => {
 
   return (
     <div className="row attribute-section pt-5">
-      <div className="col-sm-8">foo bar</div>
+      <div className="col-sm-8">
+        <p className="text-white-50">
+          Each character has six ability scores that represent his character's
+          most basic attributes. They are his raw talent and prowess. While a
+          character rarely rolls a check using just an ability score, these
+          scores, and the modifiers they create, affect nearly every aspect of a
+          character's skills and abilities.
+        </p>
+      </div>
       <div className="col-sm-4 border rounded">
         <div className="outer px-3 py-3">
           <div className="row py-3">

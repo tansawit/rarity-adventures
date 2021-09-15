@@ -104,7 +104,7 @@ const Hero = ({ tokenID, signer, animation }) => {
         <Link className="link-primary" to={`/herocave/${element?.tokenID}`}>
           {element?.class ? (
             <img //gif version if in hero cave
-              className="img-thumbnail"
+              className="img-thumbnail bg-transparent"
               src={require(`../../media/${
                 animation ? "recruit" : "heroes"
               }-icon/${element?.class?.toLowerCase()}.${
