@@ -6,16 +6,17 @@ const Tavern = ({ signer }) => {
     <div className="tavern-section container py-3 border-top">
       <div className="row bg-gray py-4">
         <div className="container-fluid d-flex justify-content-between">
-          <p className="h1 text-uppercase fw-bold text-white">The tavern</p>
+          {/* <p className="h1 text-uppercase fw-bold text-white">The tavern</p> */}
           <button
-            className="btn btn-primary"
+            className="btn btn-outline-light btn-lg"
             type="button"
             data-bs-toggle="modal"
             data-bs-target="#collapseTavern"
             aria-expanded="false"
             aria-controls="collapseTavern"
+            style={{ position: "fixed", top: "50%", right: "10%" }}
           >
-            RECRUIT
+            <i className="bi bi-shop-window"></i>
           </button>
         </div>
         {/* tavern modal */}
