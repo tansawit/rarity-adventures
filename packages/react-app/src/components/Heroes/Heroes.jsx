@@ -70,13 +70,13 @@ const Heroes = () => {
       summonersIndexes: [...indexes],
     });
     setUpdating(false);
-  }, [tokenID, contract.accounts]);
+  }, [tokenID, contract]);
 
   useEffect(() => {
     if (!contract?.accounts) return;
     filter();
     return () => {};
-  }, [filter, contract.accounts, tokenID]);
+  }, [filter, contract, tokenID]);
 
   return (
     <div className="heroes-section container py-3">
