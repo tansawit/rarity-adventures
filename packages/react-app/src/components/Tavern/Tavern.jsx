@@ -8,7 +8,7 @@ const Tavern = ({ signer }) => {
         <div className="container-fluid d-flex justify-content-between">
           {/* <p className="h1 text-uppercase fw-bold text-white">The tavern</p> */}
           <button
-            className="btn btn-outline-light btn-lg border-warning"
+            className="btn btn-outline-warning btn-lg"
             type="button"
             data-bs-toggle="modal"
             data-bs-target="#collapseTavern"
@@ -54,11 +54,12 @@ const Tavern = ({ signer }) => {
                 </div>
               </div>
               <div className="modal-body">
-                <Summon signer={signer}></Summon>
+                <Summon></Summon>
               </div>
             </div>
           </div>
         </div>
+        {/* end modal div */}
       </div>
 
       {/* <Summon signer={signer} /> */}

@@ -4,9 +4,34 @@ import { ContractContext } from "../components/Context/ContractContext";
 
 const useGold = () => {
   const { contract } = useContext(ContractContext);
+  const waitFunc = (delay) => {
+    return new Promise((resolve) => setTimeout(resolve, delay));
+  };
   const getClaimableGold = async (tokenID) => {
-    const claimableAmount = await contract.goldContract.claimable(tokenID);
-    return BigNumber(claimableAmount.toString()).dividedBy(1e18).toString();
+    const retryToCompletion = async ({ wait, retries }) => {
+      const onError = (err) => {
+        retries = retries - 1;
+        if (!retries) {
+          throw err;
+        }
+        return waitFunc(wait).then(() =>
+          retryToCompletion({ wait: wait, retries: retries })
+        );
+      };
+      try {
+        const claimableAmount = await contract.goldContract.claimable(tokenID);
+        return BigNumber(claimableAmount.toString()).dividedBy(1e18).toString();
+      } catch (e) {
+        return onError(e);
+      }
+    };
+    try {
+      const claimableAmount = await contract.goldContract.claimable(tokenID);
+      return BigNumber(claimableAmount.toString()).dividedBy(1e18).toString();
+    } catch (e) {
+      const response = await retryToCompletion({ wait: 3500, retries: 5 });
+      return response;
+    }
   };
   const getGoldBalance = async (tokenID) => {
     try {

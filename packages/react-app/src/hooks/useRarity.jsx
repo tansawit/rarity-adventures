@@ -114,6 +114,7 @@ const useRarity = () => {
       xp: null,
       xpRequired: null,
       error: null,
+      nextAdventure: null,
     };
     try {
       const summoner = await contract.rarityContract.summoner(id);
@@ -198,14 +199,36 @@ const useRarity = () => {
     try {
       // const nextAdvTime = await contract.rarityContract?.adventurers_log(id);
       // return BigNumber(nextAdvTime.toString());
-      const txhash = await contract.contract_multiAdventure.adventureTime(
-        idArray
-      );
+      const txhash = await contract.rarityWorkerContract.adventure(idArray);
       // wait for tx to be confirmed
       const confirm = await txhash.wait();
       return confirm;
     } catch (e) {
       return "multi adv error";
+    }
+  };
+  const multiLevelUp = async (idArray) => {
+    try {
+      // const nextAdvTime = await contract.rarityContract?.adventurers_log(id);
+      // return BigNumber(nextAdvTime.toString());
+      const txhash = await contract.rarityWorkerContract.level_up(idArray);
+      // wait for tx to be confirmed
+      const confirm = await txhash.wait();
+      return confirm;
+    } catch (e) {
+      return "multi level up error";
+    }
+  };
+  const multiClaimGold = async (idArray) => {
+    try {
+      // const nextAdvTime = await contract.rarityContract?.adventurers_log(id);
+      // return BigNumber(nextAdvTime.toString());
+      const txhash = await contract.rarityWorkerContract.claim_gold(idArray);
+      // wait for tx to be confirmed
+      const confirm = await txhash.wait();
+      return confirm;
+    } catch (e) {
+      return "multi claim gold error";
     }
   };
 
@@ -223,6 +246,8 @@ const useRarity = () => {
     nextAdventure,
     checkXpRequired,
     multiAdventure,
+    multiLevelUp,
+    multiClaimGold,
   };
 };
 export default useRarity;

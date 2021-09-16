@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import useRarity from "../../hooks/useRarity";
 import { CharacterContext } from "../Context/CharacterContext";
 
-export default ({ signer }) => {
+export default () => {
   const { summon } = useRarity();
   const { setTokenID } = useContext(CharacterContext);
   const classes = [
@@ -20,7 +20,7 @@ export default ({ signer }) => {
     { id: 11, name: "Wizard" },
   ];
   const handleSummon = async (classID) => {
-    const newHeroID = await summon(classID, signer);
+    const newHeroID = await summon(classID);
     setTokenID((prevState) => [...prevState, newHeroID]);
   };
   return (

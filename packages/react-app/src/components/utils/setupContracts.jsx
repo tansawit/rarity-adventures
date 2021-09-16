@@ -8,6 +8,7 @@ import {
   ATTRIBUTES_CONTRACT,
   RARITY_ADDRESS_NAMES,
   MULTIADVENTURE_CONTRACT,
+  RARITYWORKER_CONTRACT,
   GOLD_CONTRACTS,
   DUNGEONS,
 } from "./config";
@@ -16,6 +17,7 @@ import RARITY_ABI from "../constants/abis/rarity.json";
 import GOLD_ABI from "../constants/abis/gold.json";
 import ATTRIBUTES_ABI from "../constants/abis/attributes.json";
 import MULTIADVENTURE_ABI from "../constants/abis/multiadventure.json";
+import RARITYWORKER_ABI from "../constants/abis/rarityworker.json";
 import DUNGEON_ABI from "../constants/abis/dungeon.json";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
@@ -81,9 +83,9 @@ export const setupContracts = async ({ onError, onRefresh }) => {
     //   RARITY_ABI_NAMES,
     //   signer
     // );
-    const multiAdventureContract = new Contract(
-      MULTIADVENTURE_CONTRACT,
-      MULTIADVENTURE_ABI,
+    const rarityWorkerContract = new Contract(
+      RARITYWORKER_CONTRACT,
+      RARITYWORKER_ABI,
       signer
     );
     const goldContract = new Contract(GOLD_CONTRACTS, GOLD_ABI, signer);
@@ -94,7 +96,7 @@ export const setupContracts = async ({ onError, onRefresh }) => {
       rarityContract: rarityContract,
       contractAttributes: attributesContract,
       // contract_names: namesContract,
-      contract_multiAdventure: multiAdventureContract,
+      rarityWorkerContract: rarityWorkerContract,
       signer: signer,
       goldContract: goldContract,
     };

@@ -2,82 +2,164 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 import { CharacterContext } from "../Context/CharacterContext";
 import { ContractContext } from "../Context/ContractContext.jsx";
 import useRarity from "../../hooks/useRarity";
-import { MULTIADVENTURE_CONTRACT } from "../utils/config";
+import useGold from "../../hooks/useGold";
+import { RARITYWORKER_CONTRACT } from "../utils/config";
 import Hero from "./Hero";
+import HeroController from "./HeroController";
 
 const Heroes = () => {
   const { tokenID, setTokenID } = useContext(CharacterContext);
   const { contract } = useContext(ContractContext);
-  const { approve, allowance, nextAdventure, multiAdventure } = useRarity();
-  const [updating, setUpdating] = useState(false);
-  const [multiAdv, setMultiAdv] = useState({
+  const {
+    approve,
+    allowance,
+    multiAdventure,
+    multiLevelUp,
+    multiClaimGold,
+    readRarityData,
+  } = useRarity();
+  const { getClaimableGold } = useGold();
+  const [updatingAdv, setUpdatingAdv] = useState(false);
+  const [updatingGold, setUpdatingGold] = useState(false);
+  const [updatingLevel, setUpdatingLevel] = useState(false);
+  const [listAdventure, setListAdventure] = useState({
     approved: false,
     available: false,
     summoners: [],
     summonersIndexes: [],
   });
+  const [listLevel, setListLevel] = useState({
+    approved: false,
+    available: false,
+    summoners: [],
+    summonersIndexes: [],
+  });
+  const [listGold, setListGold] = useState({
+    approved: false,
+    available: false,
+    summoners: [],
+    summonersIndexes: [],
+  });
+  const [listDungeon, setListDungeon] = useState({
+    approved: false,
+    available: false,
+    summoners: [],
+    summonersIndexes: [],
+  });
+  const [task, setTask] = useState(0);
 
   const handleAdventureAll = async (e) => {
     e.preventDefault();
-    setUpdating(true); //loading button
-    const confirm = await multiAdventure(multiAdv.summoners);
+    setUpdatingAdv(true); //loading button
+    const confirm = await multiAdventure(listAdventure.summoners);
     if (confirm) {
       const temp = [...tokenID];
-      for (let i = 0; i < multiAdv.summonersIndexes.length; i++) {
-        //we're converting tokenID into object and adding update field to push a re-render
-        temp[multiAdv.summonersIndexes[i]] = {
-          id: tokenID[multiAdv.summonersIndexes[i]].id,
-          update: true,
+      console.log("temp before", temp);
+      for (let i = 0; i < listAdventure.summonersIndexes.length; i++) {
+        //we're converting tokenID into object and adding update field to force a re-render
+        console.log("check tokenID", tokenID);
+        temp[listAdventure.summonersIndexes[i]] = {
+          id: tokenID[listAdventure.summonersIndexes[i]].id,
+          updateAdv: true,
         };
       }
+      console.log("temp after", temp);
       setTokenID(temp);
-      setMultiAdv({ ...multiAdv, available: false });
+      setListAdventure({ ...listAdventure, available: false });
     }
-    setUpdating(false);
+    setUpdatingAdv(false);
   };
   const handleApprove = async (e) => {
     e.preventDefault();
-    setUpdating(true);
-    const confirm = await approve(MULTIADVENTURE_CONTRACT);
+    setUpdatingAdv(true);
+    const confirm = await approve(RARITYWORKER_CONTRACT);
     if (confirm) {
-      setMultiAdv({ ...multiAdv, approved: true });
+      setListAdventure({ ...listAdventure, approved: true });
     }
-    setUpdating(false);
+    setUpdatingAdv(false);
   };
-  const filter = useCallback(async () => {
-    if (!contract?.accounts) return;
-    setUpdating(true);
 
-    const allowed = await allowance(contract.accounts, MULTIADVENTURE_CONTRACT);
-    const filtered = [];
-    const indexes = [];
+  const filterAll = useCallback(async () => {
+    if (!contract?.accounts) return;
+    setUpdatingAdv(true);
+    const allowed = await allowance(contract.accounts, RARITYWORKER_CONTRACT);
+    const filteredAdv = [];
+    const filteredLevelUp = [];
+    const filteredClaimGold = [];
+    const indexesAdv = [];
+    const indexesLevelUp = [];
+    const indexesClaimGold = [];
     for (let i = 0; i < tokenID.length; i++) {
-      const nextAdv = await nextAdventure(tokenID[i].id);
-      if (nextAdv !== "error") {
-        const nextAdvTimestamp = parseInt(nextAdv.toString());
-        // if (nextAdvTimestamp) {
-        if (nextAdvTimestamp * 1000 < Date.now()) {
-          filtered.push(tokenID[i].id || tokenID[i]);
-          indexes.push(i);
+      const summonerData = await readRarityData(tokenID[i].id || tokenID);
+      const goldData = await getClaimableGold(tokenID[i].id || tokenID);
+      if (summonerData) {
+        // build adventrure list
+        const nextAdvTimestamp = summonerData.nextAdventure;
+        if (nextAdvTimestamp.getTime() < new Date().getTime()) {
+          filteredAdv.push(tokenID[i].id || tokenID[i]);
+          indexesAdv.push(i);
+        }
+        //build level up list
+        const xpRequired = parseInt(summonerData.xpRequired);
+        if (xpRequired === "0") {
+          filteredLevelUp.push(tokenID[i].id || tokenID[i]);
+          indexesLevelUp.push(i);
+        }
+        //build claimable gold list
+        const claimableGold = parseFloat(goldData);
+        if (claimableGold) {
+          filteredClaimGold.push(tokenID[i].id || tokenID[i]);
+          indexesClaimGold.push(i);
         }
       }
-      // }
     }
-    setMultiAdv({
+    console.log("adv list", filteredAdv);
+    console.log("gold list", filteredClaimGold);
+    console.log("level list", filteredLevelUp);
+    setListAdventure({
       approved: allowed,
-      available: filtered.length > 0,
-      summoners: [...filtered],
-      summonersIndexes: [...indexes],
+      available: filteredAdv.length > 0,
+      summoners: [...filteredAdv],
+      summonersIndexes: [...indexesAdv],
     });
-    setUpdating(false);
+    setListGold({
+      approved: allowed,
+      available: filteredClaimGold.length > 0,
+      summoners: [...filteredClaimGold],
+      summonersIndexes: [...indexesClaimGold],
+    });
+    setListLevel({
+      approved: allowed,
+      available: filteredLevelUp.length > 0,
+      summoners: [...filteredLevelUp],
+      summonersIndexes: [...indexesLevelUp],
+    });
+    setUpdatingAdv(false);
   }, [tokenID, contract]);
 
   useEffect(() => {
+    //trigger filter func
     if (!contract?.accounts) return;
-    filter();
+    filterAll();
     return () => {};
-  }, [filter, contract, tokenID]);
-
+  }, [filterAll, contract]);
+  useEffect(() => {
+    let count = 0;
+    if (listAdventure.available) {
+      count += 1;
+    }
+    if (listGold.available) {
+      count += 1;
+    }
+    if (listLevel.available) {
+      count += 1;
+    }
+    if (listDungeon.available) {
+      count += 1;
+    }
+    setTask(count); //updating all needed tasks
+    return () => {};
+  }, [listAdventure, listGold, listLevel, listDungeon]);
   return (
     <div className="heroes-section container py-3">
       <div className="container-fluid d-flex justify-content-between">
@@ -86,39 +168,37 @@ const Heroes = () => {
           Heroes List{" "}
           <span className="h6 fw-italic text-white-50">({tokenID.length})</span>
         </p>
-        {updating ? ( //loading button
-          <button className="btn btn-secondary" type="button" disabled>
-            <span
-              className="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            Loading...
-          </button>
-        ) : multiAdv.available ? (
-          multiAdv.approved ? (
-            <button
-              className="btn btn-success"
-              type="button"
-              onClick={handleAdventureAll}
-            >
-              Adventure All
-            </button>
+        {/* hero controller div */}
+        <button
+          type="button"
+          className="btn btn-outline-warning btn-lg position-relative"
+          data-bs-toggle="modal"
+          data-bs-target="#collapseController"
+          aria-expanded="false"
+          aria-controls="collapseController"
+        >
+          <i className="bi bi-controller"></i>
+          {task ? (
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {task}
+              <span className="visually-hidden">needed attention</span>
+            </span>
           ) : (
-            <button
-              className="btn btn-warning"
-              type="button"
-              onClick={handleApprove}
-            >
-              Approve
-            </button>
-          )
-        ) : (
-          <button className="btn btn-secondary" type="button" disabled={true}>
-            No summoner available
-          </button>
-        )}
+            ""
+          )}
+        </button>
+        <HeroController
+          updatingAdv={updatingAdv}
+          updatingGold={updatingGold}
+          updatingLevel={updatingLevel}
+          listAdventure={listAdventure}
+          listGold={listGold}
+          listLevel={listLevel}
+          handleApprove={handleApprove}
+          handleAdventureAll={handleAdventureAll}
+        ></HeroController>
       </div>
+      {/* Hero Card section */}
       <div className="row">
         {tokenID.length &&
           tokenID.map((element, index) => {
