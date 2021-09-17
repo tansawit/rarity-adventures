@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useRouter } from "../../hooks/useRouter";
 import Hero from "../Heroes/Hero";
 import Attribute from "./Attribute";
+import Invetory from "../Inventory/Invetory";
 import useRarity from "../../hooks/useRarity";
 
 const HeroCave = () => {
@@ -15,9 +16,7 @@ const HeroCave = () => {
         <div className="col-sm-6 container">
           <Hero tokenID={heroID} animation={true}></Hero>
         </div>
-        <div className="col-sm-6 container">
-          <p>Inventory</p>
-        </div>
+        <Invetory></Invetory>
       </div>
       <div className="row herocave-tabs pt-3">
         <ul className="nav nav-tabs nav-fill" id="myTab" role="tablist">
@@ -79,15 +78,24 @@ const HeroCave = () => {
             role="tabpanel"
             aria-labelledby="skill-tab"
           >
-            Coming Soon
+            <h1 className="display-1 text-center">Coming Soon</h1>
           </div>
           <div
-            className="tab-pane fade"
+            className="tab-pane fade container"
             id="crafting"
             role="tabpanel"
             aria-labelledby="crafting-tab"
           >
-            Coming Soon
+            <div className="row">
+              <h1 className="display-1 text-center">Coming Soon</h1>
+            </div>
+            <div className="row d-flex justify-content-center">
+              <img //crafting gif
+                className="img-thumbnail bg-transparent border-0 col-sm-6"
+                src={require("../../media/crafting.gif")}
+                alt="crafting"
+              />
+            </div>
           </div>
         </div>
       </div>
