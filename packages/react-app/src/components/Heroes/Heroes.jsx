@@ -16,26 +16,24 @@ const Heroes = () => {
     multiAdventure,
     multiLevelUp,
     multiClaimGold,
-    readRarityData,
+    pullHeroesData,
   } = useRarity();
   const { getClaimableGold } = useGold();
   const [updatingAdv, setUpdatingAdv] = useState(false);
   const [updatingGold, setUpdatingGold] = useState(false);
   const [updatingLevel, setUpdatingLevel] = useState(false);
+  const [approval, setApproval] = useState(false);
   const [listAdventure, setListAdventure] = useState({
-    approved: false,
     available: false,
     summoners: [],
     summonersIndexes: [],
   });
   const [listLevel, setListLevel] = useState({
-    approved: false,
     available: false,
     summoners: [],
     summonersIndexes: [],
   });
   const [listGold, setListGold] = useState({
-    approved: false,
     available: false,
     summoners: [],
     summonersIndexes: [],
@@ -54,27 +52,67 @@ const Heroes = () => {
     const confirm = await multiAdventure(listAdventure.summoners);
     if (confirm) {
       const temp = [...tokenID];
-      console.log("temp before", temp);
       for (let i = 0; i < listAdventure.summonersIndexes.length; i++) {
         //we're converting tokenID into object and adding update field to force a re-render
-        console.log("check tokenID", tokenID);
         temp[listAdventure.summonersIndexes[i]] = {
           id: tokenID[listAdventure.summonersIndexes[i]].id,
           updateAdv: true,
         };
       }
-      console.log("temp after", temp);
       setTokenID(temp);
-      setListAdventure({ ...listAdventure, available: false });
+      setListAdventure({
+        available: false,
+        summoners: [],
+        summonersIndexes: [],
+      });
     }
     setUpdatingAdv(false);
+  };
+  const handleLevelUp = async (e) => {
+    e.preventDefault();
+    setUpdatingLevel(true); //loading button
+    const confirm = await multiLevelUp(listLevel.summoners);
+    if (confirm) {
+      console.log("confirm", confirm);
+      const temp = [...tokenID];
+      console.log("temp before", temp);
+      for (let i = 0; i < listLevel.summonersIndexes.length; i++) {
+        //we're converting tokenID into object and adding update field to force a re-render
+        temp[listLevel.summonersIndexes[i]] = {
+          id: tokenID[listLevel.summonersIndexes[i]].id,
+          updateLevel: true,
+        };
+      }
+      console.log("temp after", temp);
+      setTokenID(temp);
+      setListLevel({ available: false, summoners: [], summonersIndexes: [] });
+    }
+    setUpdatingLevel(false);
+  };
+  const handleClaimGold = async (e) => {
+    e.preventDefault();
+    setUpdatingGold(true); //loading button
+    const confirm = await multiClaimGold(listGold.summoners);
+    if (confirm) {
+      const temp = [...tokenID];
+      for (let i = 0; i < listGold.summonersIndexes.length; i++) {
+        //we're converting tokenID into object and adding update field to force a re-render
+        temp[listGold.summonersIndexes[i]] = {
+          id: tokenID[listGold.summonersIndexes[i]].id,
+          updateGold: true,
+        };
+      }
+      setTokenID(temp);
+      setListGold({ available: false, summoners: [], summonersIndexes: [] });
+    }
+    setUpdatingGold(false);
   };
   const handleApprove = async (e) => {
     e.preventDefault();
     setUpdatingAdv(true);
     const confirm = await approve(RARITYWORKER_CONTRACT);
     if (confirm) {
-      setListAdventure({ ...listAdventure, approved: true });
+      setApproval(true);
     }
     setUpdatingAdv(false);
   };
@@ -90,50 +128,47 @@ const Heroes = () => {
     const indexesLevelUp = [];
     const indexesClaimGold = [];
     for (let i = 0; i < tokenID.length; i++) {
-      const summonerData = await readRarityData(tokenID[i].id || tokenID);
-      const goldData = await getClaimableGold(tokenID[i].id || tokenID);
-      if (summonerData) {
-        // build adventrure list
-        const nextAdvTimestamp = summonerData.nextAdventure;
-        if (nextAdvTimestamp.getTime() < new Date().getTime()) {
-          filteredAdv.push(tokenID[i].id || tokenID[i]);
-          indexesAdv.push(i);
+      try {
+        const summonerData = await pullHeroesData(tokenID[i].id || tokenID);
+        const goldData = await getClaimableGold(tokenID[i].id || tokenID);
+        if (summonerData) {
+          // build adventrure list
+          const nextAdvTimestamp = summonerData.nextAdventure;
+          if (nextAdvTimestamp.getTime() < new Date().getTime()) {
+            filteredAdv.push(tokenID[i].id || tokenID[i]);
+            indexesAdv.push(i);
+          }
+          //build level up list
+          const xpRequired = parseInt(summonerData.xpRequired);
+          if (xpRequired === 0) {
+            filteredLevelUp.push(tokenID[i].id || tokenID[i]);
+            indexesLevelUp.push(i);
+          }
+          //build claimable gold list
+          const claimableGold = parseFloat(goldData);
+          if (claimableGold) {
+            filteredClaimGold.push(tokenID[i].id || tokenID[i]);
+            indexesClaimGold.push(i);
+          }
         }
-        //build level up list
-        const xpRequired = parseInt(summonerData.xpRequired);
-        if (xpRequired === "0") {
-          filteredLevelUp.push(tokenID[i].id || tokenID[i]);
-          indexesLevelUp.push(i);
-        }
-        //build claimable gold list
-        const claimableGold = parseFloat(goldData);
-        if (claimableGold) {
-          filteredClaimGold.push(tokenID[i].id || tokenID[i]);
-          indexesClaimGold.push(i);
-        }
-      }
+      } catch (e) {}
     }
-    console.log("adv list", filteredAdv);
-    console.log("gold list", filteredClaimGold);
-    console.log("level list", filteredLevelUp);
     setListAdventure({
-      approved: allowed,
       available: filteredAdv.length > 0,
       summoners: [...filteredAdv],
       summonersIndexes: [...indexesAdv],
     });
     setListGold({
-      approved: allowed,
       available: filteredClaimGold.length > 0,
       summoners: [...filteredClaimGold],
       summonersIndexes: [...indexesClaimGold],
     });
     setListLevel({
-      approved: allowed,
       available: filteredLevelUp.length > 0,
       summoners: [...filteredLevelUp],
       summonersIndexes: [...indexesLevelUp],
     });
+    setApproval(allowed);
     setUpdatingAdv(false);
   }, [tokenID, contract]);
 
@@ -142,7 +177,8 @@ const Heroes = () => {
     if (!contract?.accounts) return;
     filterAll();
     return () => {};
-  }, [filterAll, contract]);
+  }, [filterAll, contract, tokenID]);
+
   useEffect(() => {
     let count = 0;
     if (listAdventure.available) {
@@ -159,7 +195,7 @@ const Heroes = () => {
     }
     setTask(count); //updating all needed tasks
     return () => {};
-  }, [listAdventure, listGold, listLevel, listDungeon]);
+  }, [listAdventure, listGold, listLevel, listDungeon, tokenID]);
   return (
     <div className="heroes-section container py-3">
       <div className="container-fluid d-flex justify-content-between">
@@ -196,6 +232,9 @@ const Heroes = () => {
           listLevel={listLevel}
           handleApprove={handleApprove}
           handleAdventureAll={handleAdventureAll}
+          handleClaimGold={handleClaimGold}
+          handleLevelUp={handleLevelUp}
+          approval={approval}
         ></HeroController>
       </div>
       {/* Hero Card section */}
