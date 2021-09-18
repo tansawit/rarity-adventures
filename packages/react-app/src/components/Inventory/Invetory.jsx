@@ -21,12 +21,12 @@ const Invetory = () => {
         <li class="nav-item" role="presentation">
           <button
             class="nav-link fw-bold text-white bg-transparent"
-            id="crafting-tab"
+            id="material-tab"
             data-bs-toggle="tab"
-            data-bs-target="#crafting"
+            data-bs-target="#material"
             type="button"
             role="tab"
-            aria-controls="crafting"
+            aria-controls="material"
             aria-selected="false"
           >
             Crafting Materials
@@ -58,9 +58,9 @@ const Invetory = () => {
         </div>
         <div
           class="tab-pane fade"
-          id="crafting"
+          id="material"
           role="tabpanel"
-          aria-labelledby="crafting-tab"
+          aria-labelledby="material-tab"
         >
           <h1 className="display-3">Coming Soon</h1>
         </div>

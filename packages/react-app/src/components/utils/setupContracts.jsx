@@ -18,7 +18,7 @@ import GOLD_ABI from "../constants/abis/gold.json";
 import ATTRIBUTES_ABI from "../constants/abis/attributes.json";
 import MULTIADVENTURE_ABI from "../constants/abis/multiadventure.json";
 import RARITYWORKER_ABI from "../constants/abis/rarityworker.json";
-import DUNGEON_ABI from "../constants/abis/dungeon.json";
+import CELLAR_ABI from "../constants/abis/cellar.json";
 
 export const setupContracts = async ({ onError, onRefresh }) => {
   const defaultProvider = new Web3Provider(window.ethereum, "any", {
@@ -88,6 +88,11 @@ export const setupContracts = async ({ onError, onRefresh }) => {
       RARITYWORKER_ABI,
       signer
     );
+    const cellarContract = new Contract(
+      DUNGEONS.cellar.contract,
+      CELLAR_ABI,
+      signer
+    );
     const goldContract = new Contract(GOLD_CONTRACTS, GOLD_ABI, signer);
 
     return {
@@ -96,6 +101,7 @@ export const setupContracts = async ({ onError, onRefresh }) => {
       rarityContract: rarityContract,
       contractAttributes: attributesContract,
       // contract_names: namesContract,
+      cellarContract: cellarContract,
       rarityWorkerContract: rarityWorkerContract,
       signer: signer,
       goldContract: goldContract,

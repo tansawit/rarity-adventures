@@ -6,6 +6,7 @@ import useGold from "../../hooks/useGold";
 import { RARITYWORKER_CONTRACT } from "../utils/config";
 import Hero from "./Hero";
 import HeroController from "./HeroController";
+import useDungeon from "../../hooks/useCellar";
 
 const Heroes = () => {
   const { tokenID, setTokenID } = useContext(CharacterContext);
@@ -19,9 +20,8 @@ const Heroes = () => {
     pullHeroesData,
   } = useRarity();
   const { getClaimableGold } = useGold();
-  const [updatingAdv, setUpdatingAdv] = useState(false);
-  const [updatingGold, setUpdatingGold] = useState(false);
-  const [updatingLevel, setUpdatingLevel] = useState(false);
+  const { scoutCellar, adventureCellar, singleCellar } = useDungeon();
+  const [updating, setUpdating] = useState(false);
   const [approval, setApproval] = useState(false);
   const [listAdventure, setListAdventure] = useState({
     available: false,
@@ -48,7 +48,7 @@ const Heroes = () => {
 
   const handleAdventureAll = async (e) => {
     e.preventDefault();
-    setUpdatingAdv(true); //loading button
+    setUpdating(true); //loading button
     const confirm = await multiAdventure(listAdventure.summoners);
     if (confirm) {
       const temp = [...tokenID];
@@ -66,16 +66,14 @@ const Heroes = () => {
         summonersIndexes: [],
       });
     }
-    setUpdatingAdv(false);
+    setUpdating(false);
   };
   const handleLevelUp = async (e) => {
     e.preventDefault();
-    setUpdatingLevel(true); //loading button
+    setUpdating(true); //loading button
     const confirm = await multiLevelUp(listLevel.summoners);
     if (confirm) {
-      console.log("confirm", confirm);
       const temp = [...tokenID];
-      console.log("temp before", temp);
       for (let i = 0; i < listLevel.summonersIndexes.length; i++) {
         //we're converting tokenID into object and adding update field to force a re-render
         temp[listLevel.summonersIndexes[i]] = {
@@ -83,15 +81,14 @@ const Heroes = () => {
           updateLevel: true,
         };
       }
-      console.log("temp after", temp);
       setTokenID(temp);
       setListLevel({ available: false, summoners: [], summonersIndexes: [] });
     }
-    setUpdatingLevel(false);
+    setUpdating(false);
   };
   const handleClaimGold = async (e) => {
     e.preventDefault();
-    setUpdatingGold(true); //loading button
+    setUpdating(true); //loading button
     const confirm = await multiClaimGold(listGold.summoners);
     if (confirm) {
       const temp = [...tokenID];
@@ -105,32 +102,53 @@ const Heroes = () => {
       setTokenID(temp);
       setListGold({ available: false, summoners: [], summonersIndexes: [] });
     }
-    setUpdatingGold(false);
+    setUpdating(false);
+  };
+  const handleGoCellar = async (e) => {
+    e.preventDefault();
+    setUpdating(true); //loading button
+    const confirm = await adventureCellar(listDungeon.summoners);
+    if (confirm) {
+      const temp = [...tokenID];
+      for (let i = 0; i < listDungeon.summonersIndexes.length; i++) {
+        //we're converting tokenID into object and adding update field to force a re-render
+        temp[listDungeon.summonersIndexes[i]] = {
+          id: tokenID[listDungeon.summonersIndexes[i]].id,
+          updateCellar: true,
+        };
+      }
+      setTokenID(temp);
+      setListDungeon({ available: false, summoners: [], summonersIndexes: [] });
+    }
+    setUpdating(false);
   };
   const handleApprove = async (e) => {
     e.preventDefault();
-    setUpdatingAdv(true);
+    setUpdating(true);
     const confirm = await approve(RARITYWORKER_CONTRACT);
     if (confirm) {
       setApproval(true);
     }
-    setUpdatingAdv(false);
+    setUpdating(false);
   };
 
   const filterAll = useCallback(async () => {
     if (!contract?.accounts) return;
-    setUpdatingAdv(true);
+    setUpdating(true);
     const allowed = await allowance(contract.accounts, RARITYWORKER_CONTRACT);
     const filteredAdv = [];
     const filteredLevelUp = [];
     const filteredClaimGold = [];
+    const filteredCellar = [];
     const indexesAdv = [];
     const indexesLevelUp = [];
     const indexesClaimGold = [];
+    const indexesCellar = [];
     for (let i = 0; i < tokenID.length; i++) {
       try {
-        const summonerData = await pullHeroesData(tokenID[i].id || tokenID);
-        const goldData = await getClaimableGold(tokenID[i].id || tokenID);
+        const summonerData = await pullHeroesData(tokenID[i].id || tokenID[i]);
+        const goldData = await getClaimableGold(tokenID[i].id || tokenID[i]);
+        const cellarData = await scoutCellar(tokenID[i].id || tokenID[i]);
         if (summonerData) {
           // build adventrure list
           const nextAdvTimestamp = summonerData.nextAdventure;
@@ -144,11 +162,24 @@ const Heroes = () => {
             filteredLevelUp.push(tokenID[i].id || tokenID[i]);
             indexesLevelUp.push(i);
           }
+        }
+        if (goldData) {
           //build claimable gold list
           const claimableGold = parseFloat(goldData);
           if (claimableGold) {
             filteredClaimGold.push(tokenID[i].id || tokenID[i]);
             indexesClaimGold.push(i);
+          }
+        }
+        if (cellarData) {
+          //build cellar dungeon ready list
+          // console.log("cellar data", cellarData);
+          if (
+            cellarData.nextDungeonTime.toString() * 1000 < Date.now() &&
+            cellarData.materialReward > 0
+          ) {
+            filteredCellar.push(tokenID[i].id || tokenID[i]);
+            indexesCellar.push(i);
           }
         }
       } catch (e) {}
@@ -168,8 +199,13 @@ const Heroes = () => {
       summoners: [...filteredLevelUp],
       summonersIndexes: [...indexesLevelUp],
     });
+    setListDungeon({
+      available: filteredCellar.length > 0,
+      summoners: [...filteredCellar],
+      summonersIndexes: [...indexesCellar],
+    });
     setApproval(allowed);
-    setUpdatingAdv(false);
+    setUpdating(false);
   }, [tokenID, contract]);
 
   useEffect(() => {
@@ -224,9 +260,7 @@ const Heroes = () => {
           )}
         </button>
         <HeroController
-          updatingAdv={updatingAdv}
-          updatingGold={updatingGold}
-          updatingLevel={updatingLevel}
+          updating={updating}
           listAdventure={listAdventure}
           listGold={listGold}
           listLevel={listLevel}
@@ -234,7 +268,9 @@ const Heroes = () => {
           handleAdventureAll={handleAdventureAll}
           handleClaimGold={handleClaimGold}
           handleLevelUp={handleLevelUp}
+          handleGoCellar={handleGoCellar}
           approval={approval}
+          listDungeon={listDungeon}
         ></HeroController>
       </div>
       {/* Hero Card section */}
